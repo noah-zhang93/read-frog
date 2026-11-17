@@ -1,4 +1,4 @@
-import type { JSONValue } from "ai"
+import type { JSONValue } from "@/types/background-stream"
 import type { AISDKReasoning, LLMProviderConfig } from "@/types/config/provider"
 import { resolveModelId } from "@/utils/providers/model-id"
 import { getProviderOptionsWithOverride } from "@/utils/providers/options"
