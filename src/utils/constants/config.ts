@@ -243,7 +243,7 @@ export const DEFAULT_CONFIG: Config = {
       },
     },
     annotation: {
-      enabled: true,
+      enabled: false,
       shortcut: DEFAULT_SELECTION_ANNOTATION_SHORTCUT_KEY,
       modeShortcut: DEFAULT_ANNOTATION_MODE_SHORTCUT_KEY,
     },

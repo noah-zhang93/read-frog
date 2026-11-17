@@ -51,6 +51,7 @@ describe("selection toolbar preview", () => {
   })
 
   it("shows the annotation button, then the pinned items in the toolbar's order", () => {
+    testState.selectionToolbar!.annotation.enabled = true
     render(<SelectionToolbarPreview />)
 
     expect(toolbarIcons()).toEqual([ANNOTATION_ICON, "translate"])

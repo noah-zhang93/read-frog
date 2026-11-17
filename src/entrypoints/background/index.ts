@@ -1,7 +1,6 @@
 import "@/utils/zod-config"
 import type { Config, UiLanguage } from "@/types/config/config"
 import { browser, defineBackground } from "#imports"
-import { env } from "@/env"
 import { storageAdapter } from "@/utils/atoms/storage-adapter"
 import { selectFreshTranslateProviders } from "@/utils/config/default-translate-provider"
 import { CONFIG_STORAGE_KEY } from "@/utils/constants/config"
@@ -11,7 +10,6 @@ import { createLogger } from "@/utils/logging/logger"
 import { setupBackgroundLogging } from "@/utils/logging/setup-background"
 import { onMessage } from "@/utils/message"
 import { openOptionsPage } from "@/utils/navigation"
-import { SessionCacheGroupRegistry } from "@/utils/session-cache/session-cache-group-registry"
 import { ensureRemoteSiteRulesLoaded } from "@/utils/site-rules/active"
 import { initializeActionIcons, registerActionIconListeners } from "./browser-action-icon"
 import { ensureInitializedConfig, isFreshInstalledConfig } from "./config"
@@ -22,7 +20,6 @@ import { setupDiagnosticsHandlers } from "./diagnostics"
 import { setupEdgeTTSMessageHandlers } from "./edge-tts"
 import { setupIframeInjection } from "./iframe-injection"
 import { initMockData } from "./mock-data"
-import { newUserGuide } from "./new-user-guide"
 import { setupPageTranslationHandlers } from "./page-translation"
 import { proxyFetch } from "./proxy-fetch"
 import { setupSelectionToolbarHiddenUntilReload } from "./selection-toolbar-hidden"
@@ -31,7 +28,6 @@ import { setUpSiteRulesUpdate } from "./site-rules-update"
 import { setupSubtitlesTranslationHandlers } from "./subtitles-translation"
 import { translationMessage } from "./translation-signal"
 import { setupTTSPlaybackMessageHandlers } from "./tts-playback"
-import { setupUninstallSurvey } from "./uninstall-survey"
 
 const log = createLogger("background")
 
@@ -43,21 +39,13 @@ export default defineBackground({
     setupDiagnosticsHandlers()
     log.debug("Hello background!", { id: browser.runtime.id })
 
-    browser.runtime.onInstalled.addListener(async (details) => {
+    browser.runtime.onInstalled.addListener(async () => {
       // First, and for every reason rather than just "install": this is the only place the
       // install time is ever recorded, and it must not be lost to a service worker dying
       // during the slower work below.
       await ensureInstalledAtRecorded()
 
       await ensureInitializedConfig()
-
-      // Open tutorial page when extension is installed. `from=install` tells
-      // fresh installs apart from other visits in the website's guide analytics.
-      if (details.reason === "install") {
-        await browser.tabs.create({
-          url: `${env.WXT_WEBSITE_URL}/guide/step-1?from=install`,
-        })
-      }
 
       // Deliberately last: probing Google Translate can hang for seconds on networks that
       // block it, and nothing above should wait for that. Awaiting inside the listener
@@ -68,12 +56,6 @@ export default defineBackground({
       // update deserves the same provider selection a fresh install gets.
       if (await isFreshInstalledConfig()) {
         await selectFreshTranslateProviders()
-      }
-
-      // Clear blog cache on extension update to fetch latest blog posts
-      if (details.reason === "update") {
-        log.info("Extension updated, clearing blog cache")
-        await SessionCacheGroupRegistry.removeCacheGroup("blog-fetch")
       }
     })
 
@@ -97,7 +79,6 @@ export default defineBackground({
       await cleanupAllTranslationCache()
     })
 
-    newUserGuide()
     translationMessage()
     registerActionIconListeners()
 
@@ -143,20 +124,14 @@ export default defineBackground({
     void (async () => {
       await backgroundReady
       void initializeContextMenu()
-      await setupUninstallSurvey()
     })()
 
-    // Keep background-resolved strings in the selected language when it changes.
-    // The context menu re-creates itself via its own config watcher
-    // (registerContextMenuListeners), so here we only drive the i18next singleton and
-    // re-set the frozen (localized) uninstall-survey URL.
     storageAdapter.watch<Config>(CONFIG_STORAGE_KEY, (newConfig) => {
       void (async () => {
         await backgroundReady
         if (newConfig.uiLanguage === currentUiLanguage) return
         currentUiLanguage = newConfig.uiLanguage
         await setUiLanguage(newConfig.uiLanguage)
-        await setupUninstallSurvey()
       })()
     })
   },

@@ -104,7 +104,7 @@ describe("selection toolbar page sections", () => {
 
     expect(setSelectionToolbarMock).toHaveBeenCalledWith({
       ...selectionToolbar,
-      annotation: { ...selectionToolbar.annotation, enabled: false },
+      annotation: { ...selectionToolbar.annotation, enabled: true },
     })
     // The provider row is the translate feature's own setting, shown here too.
     expect(screen.getByText("ProviderSelector")).toBeInTheDocument()

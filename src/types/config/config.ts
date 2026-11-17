@@ -68,7 +68,7 @@ const selectionToolbarAnnotationSchema = z
     // migration must still tell a missing key from one the user chose.
     modeShortcut: shortcutSchema.optional(),
   })
-  .default(() => ({ enabled: true }))
+  .default(() => ({ enabled: false }))
 
 // Text selection toolbar schema
 const selectionToolbarSchema = z
