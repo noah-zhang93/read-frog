@@ -1,4 +1,4 @@
-import type { JSONValue } from "ai"
+import type { JSONValue } from "@/types/background-stream"
 import { Icon } from "@iconify/react"
 import { dequal } from "dequal"
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"

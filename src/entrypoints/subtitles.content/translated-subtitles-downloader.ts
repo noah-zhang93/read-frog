@@ -253,27 +253,13 @@ export class TranslatedSubtitlesDownloader {
   }
 
   private async buildExportProcessedSubtitles(
-    sourceSubtitles: SubtitlesFragment[],
+    _sourceSubtitles: SubtitlesFragment[],
     sourceProcessedSubtitles: SubtitlesFragment[],
-    config: Config,
-    operationId: number,
-    providerRef: PromptableProviderRef | null,
+    _config: Config,
+    _operationId: number,
+    _providerRef: PromptableProviderRef | null,
   ): Promise<SubtitlesFragment[]> {
-    // No ref means AI segmentation cannot run (no provider, no model to
-    // prompt, or the hosted tier is unavailable); the export then keeps the
-    // same rule-based result the feature-off path produces.
-    if (!config.videoSubtitles.aiSegmentation || this.fetcher.isPreSegmented?.() || !providerRef) {
-      return [...sourceProcessedSubtitles]
-    }
-
-    const result: SubtitlesFragment[] = []
-
-    for (const chunk of this.buildSourceSubtitleChunks(sourceSubtitles)) {
-      result.push(...(await this.buildExportProcessedChunk(chunk, providerRef, operationId)))
-      this.assertActive(operationId)
-    }
-
-    return result.sort((a, b) => a.start - b.start)
+    return [...sourceProcessedSubtitles]
   }
 
   private async buildExportProcessedChunk(

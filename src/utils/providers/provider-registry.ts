@@ -7,7 +7,7 @@ import type {
   SystemProviderSelectorItem,
 } from "@/utils/providers/provider-display"
 import readFrogLogo from "@/assets/providers/read-frog-provider.png?url&no-inline"
-import { isLLMProviderConfig, isTranslateProviderConfig } from "@/types/config/provider"
+import { isLLMProviderConfig, isPureTranslateProviderConfig } from "@/types/config/provider"
 import {
   BUILT_IN_AI_PROVIDER_ID,
   BUILT_IN_AI_PROVIDER_IDS,
@@ -28,7 +28,11 @@ const BUILT_IN_AI_PROVIDER_FALLBACK_NAME = "Built-in AI"
 const BUILT_IN_AI_ADVANCE_PROVIDER_NAME_KEY = "options.apiProviders.providers.name.builtInAiAdvance"
 const BUILT_IN_AI_ADVANCE_PROVIDER_FALLBACK_NAME = "Advanced Built-in AI"
 
-export type ProviderCapability = FeatureKey | "customAction" | "languageDetection"
+export type ProviderCapability =
+  | FeatureKey
+  | "noteSuggestion"
+  | "customAction"
+  | "languageDetection"
 type SystemProviderNameKey = keyof GeneratedI18nStructure
 type ProviderConfigPredicate<T extends ProviderConfig = ProviderConfig> = (
   provider: ProviderConfig,
@@ -97,14 +101,20 @@ const SYSTEM_PROVIDER_DEFS = {
 } as const satisfies Record<string, SystemProviderDef>
 
 function getSystemProviderDefs(): SystemProviderDef[] {
-  return Object.values(SYSTEM_PROVIDER_DEFS)
+  return []
 }
 
+const DISABLED_AI_CAPABILITIES: ReadonlySet<ProviderCapability> = new Set([
+  "noteSuggestion",
+  "customAction",
+  "languageDetection",
+])
+
 const LOCAL_PROVIDER_CAPABILITY_PREDICATES = {
-  pageTranslation: isTranslateProviderConfig,
-  videoSubtitles: isTranslateProviderConfig,
-  selectionTranslation: isTranslateProviderConfig,
-  inputTranslation: isTranslateProviderConfig,
+  pageTranslation: isPureTranslateProviderConfig,
+  videoSubtitles: isPureTranslateProviderConfig,
+  selectionTranslation: isPureTranslateProviderConfig,
+  inputTranslation: isPureTranslateProviderConfig,
   noteSuggestion: isLLMProviderConfig,
   customAction: isLLMProviderConfig,
   languageDetection: isLLMProviderConfig,
@@ -191,6 +201,10 @@ export function doesProviderSupportsCapability(
   providerId: string,
   options: { requireEnable?: boolean } = {},
 ): boolean {
+  if (DISABLED_AI_CAPABILITIES.has(capability)) {
+    return false
+  }
+
   const providerConfig = providersConfig.find((provider) => provider.id === providerId)
   if (providerConfig) {
     return (
@@ -208,6 +222,10 @@ export function getProviderIdsForCapability(
   providersConfig: ProvidersConfig,
   options: { requireEnable?: boolean } = {},
 ): string[] {
+  if (DISABLED_AI_CAPABILITIES.has(capability)) {
+    return []
+  }
+
   const localIds = providersConfig
     .filter(
       (provider) =>
@@ -223,6 +241,10 @@ export function getSelectableProvidersForCapability(
   capability: ProviderCapability,
   providersConfig: ProvidersConfig,
 ): ProviderSelectorOption[] {
+  if (DISABLED_AI_CAPABILITIES.has(capability)) {
+    return []
+  }
+
   const systemProviders = getSystemProviderDefs()
     .filter((def) => def.capabilities.includes(capability))
     .map(createSystemProviderSelectorItem)
@@ -240,6 +262,10 @@ export function resolveProviderRefForCapability<C extends ProviderCapability>(
   providersConfig: ProvidersConfig,
   providerId: string,
 ): ProviderRefForCapability<C> | null {
+  if (DISABLED_AI_CAPABILITIES.has(capability)) {
+    return null
+  }
+
   const providerConfig = providersConfig.find((provider) => provider.id === providerId)
   if (providerConfig) {
     if (!isLocalProviderConfigCompatibleWithCapability(capability, providerConfig)) {

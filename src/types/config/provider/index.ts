@@ -81,6 +81,8 @@ export function isNonAPIProviderConfig(config: ProviderConfig): config is NonAPI
   return isNonAPIProvider(config.provider)
 }
 
-export function isPureTranslateProviderConfig(config: ProviderConfig): boolean {
+export function isPureTranslateProviderConfig(
+  config: ProviderConfig,
+): config is TranslateProviderConfig {
   return isTranslateProvider(config.provider) && isPureTranslateProvider(config.provider)
 }

@@ -1,4 +1,4 @@
-import type { APICallError } from "ai"
+type APICallError = Error & { statusCode?: number; responseBody?: string }
 import type { ParagraphDiagnosis } from "../paragraph-diagnosis"
 import type { TranslationTextFormat } from "@/types/config/translate"
 import * as React from "react"

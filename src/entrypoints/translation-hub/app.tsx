@@ -1,7 +1,6 @@
 import { PageLayout } from "@/components/page-layout"
 import { i18n } from "@/utils/i18n"
 import { LanguageControlPanel } from "./components/language-control-panel"
-import { PromptSelector } from "./components/prompt-selector"
 import { TextInput } from "./components/text-input"
 import { TranslationPanel } from "./components/translation-panel"
 import { TranslationPanelActions } from "./components/translation-panel-actions"
@@ -18,7 +17,6 @@ export default function App() {
           </div>
           <div className="order-3 flex justify-end lg:order-2 lg:h-full lg:items-end">
             <div className="flex max-w-full min-w-0 items-center gap-2">
-              <PromptSelector />
               <TranslationServiceDropdown />
               <TranslationPanelActions />
             </div>

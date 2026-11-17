@@ -1,7 +1,10 @@
 import type { Config } from "@/types/config/config"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { GOOGLE_TRANSLATE_PROVIDER_ID } from "@/utils/constants/providers"
+import {
+  GOOGLE_TRANSLATE_PROVIDER_ID,
+  MICROSOFT_TRANSLATE_PROVIDER_ID,
+} from "@/utils/constants/providers"
 
 const isGoogleTranslateReachableMock = vi.fn<(...args: any[]) => any>()
 const getLocalConfigAndMetaMock = vi.fn<(...args: any[]) => any>()
@@ -33,8 +36,13 @@ async function selectFreshProviders() {
 describe("selectFreshTranslateProviders", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    const config = structuredClone(DEFAULT_CONFIG)
+    config.pageTranslation.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.selectionToolbar.features.translate.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.inputTranslation.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.videoSubtitles.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
     getLocalConfigAndMetaMock.mockResolvedValue({
-      value: structuredClone(DEFAULT_CONFIG),
+      value: config,
       meta: { schemaVersion: 95, lastModifiedAt: 100 },
     })
     setLocalConfigMock.mockResolvedValue(undefined)
@@ -59,6 +67,9 @@ describe("selectFreshTranslateProviders", () => {
     isGoogleTranslateReachableMock.mockResolvedValue(true)
     const config = structuredClone(DEFAULT_CONFIG)
     config.pageTranslation.providerId = "openai-default"
+    config.selectionToolbar.features.translate.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.inputTranslation.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.videoSubtitles.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
     getLocalConfigAndMetaMock.mockResolvedValue({
       value: config,
       meta: { schemaVersion: 95, lastModifiedAt: 100 },
@@ -79,6 +90,9 @@ describe("selectFreshTranslateProviders", () => {
     isGoogleTranslateReachableMock.mockResolvedValue(true)
     const config = structuredClone(DEFAULT_CONFIG)
     config.pageTranslation.providerId = "openai-default"
+    config.selectionToolbar.features.translate.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.inputTranslation.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
+    config.videoSubtitles.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
     config.selectionToolbar.features.translate.providerId = "openai-default"
     config.inputTranslation.providerId = "openai-default"
     config.videoSubtitles.providerId = "openai-default"
@@ -103,6 +117,7 @@ describe("selectFreshTranslateProviders", () => {
   it("preserves unrelated config while promoting the untouched defaults", async () => {
     isGoogleTranslateReachableMock.mockResolvedValue(true)
     const config = structuredClone(DEFAULT_CONFIG)
+    config.pageTranslation.providerId = MICROSOFT_TRANSLATE_PROVIDER_ID
     config.language.targetCode = "ja"
     config.pageTranslation.page.autoTranslatePatterns = ["example.com"]
     getLocalConfigAndMetaMock.mockResolvedValue({

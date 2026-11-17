@@ -1,8 +1,4 @@
 import type { GeneratedI18nStructure } from "#i18n"
-import {
-  CUSTOM_ACTION_LAYOUT_SECTION_ID,
-  CUSTOM_ACTION_NOTEBASE_SECTION_ID,
-} from "@/utils/navigation"
 
 type I18nKey = keyof GeneratedI18nStructure
 
@@ -21,21 +17,6 @@ type SearchItemDefinition = Omit<SearchItem, "titleKey" | "descriptionKey" | "pa
 }
 
 export const SEARCH_ITEMS: SearchItem[] = [
-  // Advanced page
-  {
-    sectionId: "glossary-enabled",
-    route: "/advanced/glossary",
-    titleKey: "options.advanced.glossary.enable.title",
-    descriptionKey: "options.advanced.glossary.enable.description",
-    pageKey: "options.advanced.glossary.title",
-  },
-  {
-    sectionId: "glossary-library",
-    route: "/advanced/glossary",
-    titleKey: "options.advanced.glossary.library.title",
-    descriptionKey: "options.advanced.glossary.library.description",
-    pageKey: "options.advanced.glossary.title",
-  },
   // Preference page
   {
     // Titled with the section, so "appearance" still finds a row that reads "Theme".
@@ -108,13 +89,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     route: "/preference",
     titleKey: "options.preference.userExperience.beta.title",
     descriptionKey: "options.preference.userExperience.beta.description",
-    pageKey: "options.preference.title",
-  },
-  {
-    sectionId: "analytics",
-    route: "/preference",
-    titleKey: "options.preference.userExperience.analytics.title",
-    descriptionKey: "options.preference.userExperience.analytics.description",
     pageKey: "options.preference.title",
   },
 
@@ -198,45 +172,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     descriptionKey: "options.apiProviders.featureProviders.description",
     pageKey: "options.apiProviders.title",
   },
-  {
-    sectionId: "language-detection",
-    route: "/api-providers",
-    titleKey: "options.apiProviders.languageDetection.title",
-    descriptionKey: "options.apiProviders.languageDetection.description",
-    pageKey: "options.apiProviders.title",
-  },
-  {
-    sectionId: "ai-content-aware",
-    route: "/api-providers",
-    titleKey: "options.apiProviders.aiContentAware.title",
-    descriptionKey: "options.apiProviders.aiContentAware.description",
-    pageKey: "options.apiProviders.title",
-  },
-
-  // Custom Actions page
-  {
-    sectionId: "custom-actions",
-    route: "/custom-actions",
-    titleKey: "options.selectionToolbar.customActions.title",
-    descriptionKey: "options.selectionToolbar.customActions.description",
-    pageKey: "options.selectionToolbar.customActions.title",
-  },
-  {
-    // The Layout heading in the Config tab; the scroll switches to that tab first.
-    sectionId: CUSTOM_ACTION_LAYOUT_SECTION_ID,
-    route: "/custom-actions",
-    titleKey: "options.selectionToolbar.customActions.form.layout.title",
-    descriptionKey: "options.selectionToolbar.customActions.form.layout.description",
-    pageKey: "options.selectionToolbar.customActions.title",
-  },
-  {
-    // The Notebase tab trigger itself; the scroll activates it.
-    sectionId: CUSTOM_ACTION_NOTEBASE_SECTION_ID,
-    route: "/custom-actions",
-    titleKey: "options.selectionToolbar.customActions.form.notebase.title",
-    descriptionKey: "options.selectionToolbar.customActions.form.notebase.description",
-    pageKey: "options.selectionToolbar.customActions.title",
-  },
 
   // Translation page
   {
@@ -281,14 +216,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     route: "/page-translation/custom-css",
     titleKey: "options.translation.translationStyle.cssEditor",
     descriptionKey: "options.translation.translationStyle.cssEditorDescription",
-    pageKey: "options.translation.title",
-  },
-  {
-    // Its own page, drilled into from the Translation page's Personalized Prompts section.
-    sectionId: "personalized-prompts",
-    route: "/page-translation/prompts",
-    titleKey: "options.translation.personalizedPrompts.title",
-    descriptionKey: "options.translation.personalizedPrompts.description",
     pageKey: "options.translation.title",
   },
   {
@@ -428,13 +355,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     pageKey: "options.selectionToolbar.title",
   },
   {
-    sectionId: "selection-toolbar-note-suggestion",
-    route: "/selection-toolbar",
-    titleKey: "options.selectionToolbar.actions.noteSuggestion.title",
-    descriptionKey: "options.selectionToolbar.actions.noteSuggestion.description",
-    pageKey: "options.selectionToolbar.title",
-  },
-  {
     sectionId: "selection-toolbar-annotation",
     route: "/selection-toolbar",
     titleKey: "options.selectionToolbar.annotation.title",
@@ -506,24 +426,10 @@ export const SEARCH_ITEMS: SearchItem[] = [
     pageKey: "options.videoSubtitles.title",
   },
   {
-    sectionId: "subtitles-ai-segmentation",
-    route: "/video-subtitles",
-    titleKey: "options.videoSubtitles.preference.aiSegmentation.title",
-    descriptionKey: "options.videoSubtitles.preference.aiSegmentation.description",
-    pageKey: "options.videoSubtitles.title",
-  },
-  {
     sectionId: "subtitles-pause-on-hover",
     route: "/video-subtitles",
     titleKey: "options.videoSubtitles.preference.pauseOnHover.title",
     descriptionKey: "options.videoSubtitles.preference.pauseOnHover.description",
-    pageKey: "options.videoSubtitles.title",
-  },
-  {
-    sectionId: "subtitles-ai-quota",
-    route: "/video-subtitles",
-    titleKey: "options.videoSubtitles.aiQuota.title",
-    descriptionKey: "options.videoSubtitles.aiQuota.description",
     pageKey: "options.videoSubtitles.title",
   },
   {
@@ -540,14 +446,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     route: "/video-subtitles/style/custom-css",
     titleKey: "options.videoSubtitles.style.customCSS.title",
     descriptionKey: "options.videoSubtitles.style.customCSS.description",
-    pageKey: "options.videoSubtitles.title",
-  },
-  {
-    // Its own page, drilled into from the Video Subtitles page's Custom prompts section.
-    sectionId: "subtitles-custom-prompts",
-    route: "/video-subtitles/prompts",
-    titleKey: "options.videoSubtitles.customPrompts.title",
-    descriptionKey: "options.videoSubtitles.customPrompts.description",
     pageKey: "options.videoSubtitles.title",
   },
   {
@@ -569,13 +467,6 @@ export const SEARCH_ITEMS: SearchItem[] = [
     route: "/video-subtitles/subtitles-queue",
     titleKey: "options.videoSubtitles.subtitlesQueue.requestTimeout.title",
     descriptionKey: "options.videoSubtitles.subtitlesQueue.requestTimeout.description",
-    pageKey: "options.videoSubtitles.title",
-  },
-  {
-    sectionId: "clear-ai-segmentation-cache",
-    route: "/video-subtitles",
-    titleKey: "options.videoSubtitles.cache.clearCache.title",
-    descriptionKey: "options.videoSubtitles.cache.clearCache.description",
     pageKey: "options.videoSubtitles.title",
   },
 

@@ -28,17 +28,9 @@ vi.mock("@/utils/providers/provider-ref", async () => {
   return { ...actual, serializeProviderRef: serializeProviderRefMock }
 })
 
-const { HostedAiProviderUnavailableError } = await import("@/utils/providers/provider-ref")
 const { detectLanguageWithSource } = await import("../language")
 
 const mockFranc = vi.mocked(franc)
-
-const BUILT_IN_PROVIDER = {
-  kind: "system" as const,
-  id: "read-frog-free-ai" as const,
-  name: "Built-in AI",
-  modelTier: "normal" as const,
-}
 
 describe("detectLanguageWithSource", () => {
   beforeEach(() => {
@@ -102,7 +94,7 @@ describe("detectLanguageWithSource", () => {
     await expect(`${lines.join("\n")}\n`).toMatchFileSnapshot("./__snapshots__/franc-languages.txt")
   })
 
-  describe("when LLM detection is enabled but the account cannot run it", () => {
+  describe("when LLM detection is enabled (disabled at runtime)", () => {
     beforeEach(() => {
       toastAddMock.mockReset()
       serializeProviderRefMock.mockReset()
@@ -112,55 +104,9 @@ describe("detectLanguageWithSource", () => {
       })
     })
 
-    it("says so instead of quietly resolving with franc", async () => {
-      serializeProviderRefMock.mockRejectedValue(
-        new HostedAiProviderUnavailableError(BUILT_IN_PROVIDER, "Ultra plan required"),
-      )
+    it("falls back to franc without calling LLM detection", async () => {
       mockFranc.mockReturnValue("eng")
 
-      // franc still answers — the degrade is deliberate. What changed is that
-      // the user is now told why, instead of a denial being folded into the
-      // same null that means "no LLM detection is configured".
-      await expect(
-        detectLanguageWithSource("This is enough text to detect language.", { enableLLM: true }),
-      ).resolves.toEqual({ code: "en", source: "franc" })
-
-      expect(toastAddMock).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "warning", title: "Ultra plan required" }),
-      )
-    })
-
-    it("explains the fallback for speaking without presenting it as a login gate", async () => {
-      serializeProviderRefMock.mockRejectedValue(
-        new HostedAiProviderUnavailableError(BUILT_IN_PROVIDER, "Log in to use this provider"),
-      )
-      mockFranc.mockReturnValue("eng")
-
-      await expect(
-        detectLanguageWithSource("This is enough text to detect language.", {
-          enableLLM: true,
-          llmFallbackToastContext: "speak",
-        }),
-      ).resolves.toEqual({ code: "en", source: "franc" })
-
-      expect(toastAddMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "warning",
-          title: "speak.languageDetectionFallback",
-          description: "speak.languageDetectionSettingsHint",
-        }),
-      )
-    })
-
-    it("stays silent when no provider is configured at all", async () => {
-      getLocalConfigMock.mockResolvedValue({
-        languageDetection: { mode: "llm", providerId: "" },
-        providersConfig: [],
-      })
-      mockFranc.mockReturnValue("eng")
-
-      // Not the same condition: nothing was denied, so there is nothing to
-      // report. This is the meaning the denial used to collapse into.
       await expect(
         detectLanguageWithSource("This is enough text to detect language.", { enableLLM: true }),
       ).resolves.toEqual({ code: "en", source: "franc" })

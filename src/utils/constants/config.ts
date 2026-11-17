@@ -34,7 +34,7 @@ import {
   buildDefaultProviderConfigList,
   DEFAULT_PROVIDER_CONFIG,
   DEFAULT_PROVIDER_CONFIG_LIST,
-  MICROSOFT_TRANSLATE_PROVIDER_ID,
+  GOOGLE_TRANSLATE_PROVIDER_ID,
 } from "./providers"
 import {
   DEFAULT_ANNOTATION_MODE_SHORTCUT_KEY,
@@ -62,14 +62,12 @@ import {
   DEFAULT_MIN_WORDS_PER_NODE,
   DEFAULT_PRELOAD_MARGIN,
   DEFAULT_PRELOAD_THRESHOLD,
-  DEFAULT_REQUEST_CAPACITY,
   DEFAULT_REQUEST_RATE,
   DEFAULT_REQUEST_TIMEOUT_MS,
   DEFAULT_SELECTION_TRANSLATION_SHORTCUT_KEY,
   DEFAULT_TRANSLATION_MODE_SHORTCUT_KEY,
 } from "./translate"
 import { DEFAULT_TRANSLATION_HUB_SHORTCUT_KEY } from "./translation-hub"
-import { TRANSLATION_NODE_STYLE_ON_INSTALLED } from "./translation-node-style"
 import { DEFAULT_TTS_CONFIG } from "./tts"
 
 export { CONFIG_STORAGE_KEY } from "./config-storage-key"
@@ -175,18 +173,18 @@ export const DEFAULT_CONFIG: Config = {
   },
   providersConfig: DEFAULT_PROVIDER_CONFIG_LIST,
   pageTranslation: {
-    providerId: MICROSOFT_TRANSLATE_PROVIDER_ID,
+    providerId: GOOGLE_TRANSLATE_PROVIDER_ID,
     mode: "bilingual",
     modeShortcut: DEFAULT_TRANSLATION_MODE_SHORTCUT_KEY,
     node: {
-      enabled: false,
-      hotkey: "control",
+      enabled: true,
+      hotkey: "clickAndHold",
       shortcut: DEFAULT_NODE_TRANSLATION_SHORTCUT_KEY,
-      forceRetranslation: false,
+      forceRetranslation: true,
     },
     page: {
-      range: "all",
-      translateTitle: true,
+      range: "main",
+      translateTitle: false,
       autoTranslatePatterns: ["*.news.ycombinator.com"],
       neverAutoTranslatePatterns: [],
       autoTranslateLanguages: [],
@@ -197,13 +195,13 @@ export const DEFAULT_CONFIG: Config = {
       },
       minCharactersPerNode: DEFAULT_MIN_CHARACTERS_PER_NODE,
       minWordsPerNode: DEFAULT_MIN_WORDS_PER_NODE,
-      enableTargetLanguageSkip: true,
+      enableTargetLanguageSkip: false,
       skipLanguages: [],
     },
     enableAIContentAware: false,
     customPromptsConfig: DEFAULT_TRANSLATE_PROMPTS_CONFIG,
     requestQueueConfig: {
-      capacity: DEFAULT_REQUEST_CAPACITY,
+      capacity: 60,
       rate: DEFAULT_REQUEST_RATE,
       timeoutMs: DEFAULT_REQUEST_TIMEOUT_MS,
     },
@@ -212,7 +210,7 @@ export const DEFAULT_CONFIG: Config = {
       maxItemsPerBatch: DEFAULT_BATCH_CONFIG.maxItemsPerBatch,
     },
     translationNodeStyle: {
-      preset: TRANSLATION_NODE_STYLE_ON_INSTALLED,
+      preset: "background",
       isCustom: false,
       customCSS: null,
     },
@@ -222,7 +220,7 @@ export const DEFAULT_CONFIG: Config = {
   },
   tts: DEFAULT_TTS_CONFIG,
   floatingButton: {
-    enabled: true,
+    enabled: false,
     position: DEFAULT_FLOATING_BUTTON_POSITION,
     side: DEFAULT_FLOATING_BUTTON_SIDE,
     disabledFloatingButtonPatterns: [],
@@ -236,11 +234,11 @@ export const DEFAULT_CONFIG: Config = {
     features: {
       translate: {
         enabled: true,
-        providerId: MICROSOFT_TRANSLATE_PROVIDER_ID,
+        providerId: GOOGLE_TRANSLATE_PROVIDER_ID,
         shortcut: DEFAULT_SELECTION_TRANSLATION_SHORTCUT_KEY,
       },
       speak: {
-        enabled: true,
+        enabled: false,
         shortcut: DEFAULT_SELECTION_SPEAK_SHORTCUT_KEY,
       },
     },
@@ -251,17 +249,17 @@ export const DEFAULT_CONFIG: Config = {
     },
     builtInActions: {
       dictionary: {
-        enabled: true,
+        enabled: false,
         providerId: BUILT_IN_AI_PROVIDER_ID,
         shortcut: BUILT_IN_ACTION_DEFAULT_SHORTCUTS[BUILT_IN_DICTIONARY_ACTION_ID],
       },
       sentenceAnalysis: {
-        enabled: true,
+        enabled: false,
         providerId: BUILT_IN_AI_PROVIDER_ID,
         shortcut: BUILT_IN_ACTION_DEFAULT_SHORTCUTS[BUILT_IN_SENTENCE_ANALYSIS_ACTION_ID],
       },
       improveWriting: {
-        enabled: true,
+        enabled: false,
         providerId: BUILT_IN_AI_PROVIDER_ID,
         shortcut: BUILT_IN_ACTION_DEFAULT_SHORTCUTS[BUILT_IN_IMPROVE_WRITING_ACTION_ID],
       },
@@ -270,11 +268,8 @@ export const DEFAULT_CONFIG: Config = {
     order: [...SELECTION_TOOLBAR_FEATURE_IDS, ...BUILT_IN_ACTION_IDS],
     unpinned: [BUILT_IN_IMPROVE_WRITING_ACTION_ID],
     noteSuggestion: {
-      enabled: true,
+      enabled: false,
       actionId: BUILT_IN_DICTIONARY_ACTION_ID,
-      // Fresh installs always carry the OpenAI default provider; suggestions
-      // start working the moment the user adds their key, with no hosted plan
-      // requirement attached.
       providerId: DEFAULT_PROVIDER_CONFIG.openai.id,
     },
   },
@@ -285,11 +280,11 @@ export const DEFAULT_CONFIG: Config = {
     enabled: false,
   },
   contextMenu: {
-    enabled: true,
+    enabled: false,
   },
   inputTranslation: {
-    enabled: true,
-    providerId: MICROSOFT_TRANSLATE_PROVIDER_ID,
+    enabled: false,
+    providerId: GOOGLE_TRANSLATE_PROVIDER_ID,
     fromLang: "targetCode",
     toLang: "sourceCode",
     enableCycle: false,
@@ -297,15 +292,15 @@ export const DEFAULT_CONFIG: Config = {
   },
   videoSubtitles: {
     platforms: {
-      youtube: "manual",
-      xcom: "manual",
-      netflix: "manual",
-      bilibili: "manual",
-      udemy: "manual",
-      edx: "manual",
+      youtube: "off",
+      xcom: "off",
+      netflix: "off",
+      bilibili: "off",
+      udemy: "off",
+      edx: "off",
     },
     toggleShortcut: DEFAULT_SUBTITLES_TOGGLE_SHORTCUT_KEY,
-    providerId: MICROSOFT_TRANSLATE_PROVIDER_ID,
+    providerId: GOOGLE_TRANSLATE_PROVIDER_ID,
     style: {
       displayMode: DEFAULT_DISPLAY_MODE,
       translationPosition: DEFAULT_TRANSLATION_POSITION,
@@ -330,7 +325,7 @@ export const DEFAULT_CONFIG: Config = {
     wordLookupActionId: BUILT_IN_DICTIONARY_ACTION_ID,
     pauseOnHover: false,
     requestQueueConfig: {
-      capacity: DEFAULT_REQUEST_CAPACITY,
+      capacity: 60,
       rate: DEFAULT_REQUEST_RATE,
       timeoutMs: DEFAULT_REQUEST_TIMEOUT_MS,
     },
@@ -374,15 +369,15 @@ export function buildFreshDefaultConfig(): Config {
       ...DEFAULT_CONFIG.selectionToolbar,
       builtInActions: {
         dictionary: {
-          enabled: true,
+          enabled: false,
           providerId: BUILT_IN_AI_PROVIDER_ID,
         },
         sentenceAnalysis: {
-          enabled: true,
+          enabled: false,
           providerId: BUILT_IN_AI_PROVIDER_ID,
         },
         improveWriting: {
-          enabled: true,
+          enabled: false,
           providerId: BUILT_IN_AI_PROVIDER_ID,
         },
       },

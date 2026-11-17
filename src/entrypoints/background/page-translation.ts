@@ -5,9 +5,7 @@ import { browser } from "#imports"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { normalizeLanguageConfig } from "@/utils/config/languages"
 import { isNoTranslationSentinel } from "@/utils/constants/prompt"
-import { cleanText } from "@/utils/content/utils"
 import { db } from "@/utils/db/dexie/db"
-import { Sha256Hex } from "@/utils/hash"
 import { executeTranslate } from "@/utils/host/translate/execute-translate"
 import {
   assertHtmlAttributeMarkerIntegrity,
@@ -19,13 +17,10 @@ import {
   hasInlineAtomTokens,
 } from "@/utils/host/translate/inline-atom-tokens"
 import { normalizePromptContextValue } from "@/utils/host/translate/translate-text"
-import { validateProviderHostedFeature } from "@/utils/hosted-ai/routing"
 import { createLogger } from "@/utils/logging/logger"
 import { onMessage } from "@/utils/message"
 import { getTranslatePrompt } from "@/utils/prompts/translate"
-import { canProviderRefGenerateText } from "@/utils/providers/provider-ref"
 import { TranslationCancelledError } from "@/utils/request/cancellation"
-import { getOrGenerateTranslationContextSummary } from "./translation-context-summary"
 import {
   buildTranslationScopeKey,
   createWebPageTranslationQueues,
@@ -201,31 +196,8 @@ export function setupPageTranslationHandlers(): void {
     return result
   })
 
-  onMessage("getOrGenerateWebPageSummary", async (message) => {
-    validateProviderHostedFeature(message.data.providerRef, message.data.hostedFeature)
-    const { requestQueue } = await queuesPromise
-    const { webTitle, webContent, providerRef } = message.data
-
-    if (!webTitle || !webContent) {
-      return null
-    }
-
-    // The payload type forces senders to narrow, but the wire is a trust
-    // boundary (a pre-update content script can send a translate-only ref).
-    // Refuse like the subtitle summary handlers do: a queue task for a
-    // provider with no model to prompt can only ever throw, after burning
-    // its retries.
-    if (!canProviderRefGenerateText(providerRef)) {
-      return null
-    }
-
-    return await getOrGenerateTranslationContextSummary({
-      ...message.data,
-      title: webTitle,
-      textContent: webContent,
-      cacheKeyParts: [webTitle, Sha256Hex(cleanText(webContent))],
-      requestQueue,
-    })
+  onMessage("getOrGenerateWebPageSummary", async () => {
+    return null
   })
 
   onMessage("cancelPageTranslationRequests", async (message) => {

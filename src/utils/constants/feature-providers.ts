@@ -1,6 +1,6 @@
 import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
-import { isLLMProvider, isTranslateProvider } from "@/types/config/provider"
+import { isPureTranslateProvider, isTranslateProvider } from "@/types/config/provider"
 import { mergeWithArrayOverwrite } from "../atoms/config"
 import { getProviderConfigById } from "../config/helpers"
 
@@ -9,7 +9,6 @@ export const FEATURE_KEYS = [
   "videoSubtitles",
   "selectionTranslation",
   "inputTranslation",
-  "noteSuggestion",
 ] as const
 
 export type FeatureKey = (typeof FEATURE_KEYS)[number]
@@ -20,31 +19,29 @@ export interface FeatureProviderDef {
   isProvider: (provider: string) => boolean
 }
 
+const isAllowedFeatureProvider = (provider: string): boolean =>
+  isTranslateProvider(provider) && isPureTranslateProvider(provider)
+
 export const FEATURE_PROVIDER_DEFS = {
   pageTranslation: {
-    isProvider: isTranslateProvider,
+    isProvider: isAllowedFeatureProvider,
     getProviderId: (c: Config) => c.pageTranslation.providerId,
     configPath: ["pageTranslation", "providerId"],
   },
   videoSubtitles: {
-    isProvider: isTranslateProvider,
+    isProvider: isAllowedFeatureProvider,
     getProviderId: (c: Config) => c.videoSubtitles.providerId,
     configPath: ["videoSubtitles", "providerId"],
   },
   selectionTranslation: {
-    isProvider: isTranslateProvider,
+    isProvider: isAllowedFeatureProvider,
     getProviderId: (c: Config) => c.selectionToolbar.features.translate.providerId,
     configPath: ["selectionToolbar", "features", "translate", "providerId"],
   },
   inputTranslation: {
-    isProvider: isTranslateProvider,
+    isProvider: isAllowedFeatureProvider,
     getProviderId: (c: Config) => c.inputTranslation.providerId,
     configPath: ["inputTranslation", "providerId"],
-  },
-  noteSuggestion: {
-    isProvider: isLLMProvider,
-    getProviderId: (c: Config) => c.selectionToolbar.noteSuggestion.providerId,
-    configPath: ["selectionToolbar", "noteSuggestion", "providerId"],
   },
 } as const satisfies Record<FeatureKey, FeatureProviderDef>
 
@@ -54,7 +51,6 @@ export const FEATURE_KEY_I18N_MAP = {
   videoSubtitles: "videoSubtitles",
   selectionTranslation: "selectionTranslation",
   inputTranslation: "inputTranslation",
-  noteSuggestion: "noteSuggestion",
 } as const satisfies Record<FeatureKey, string>
 
 export type FeatureLabelI18nKey =

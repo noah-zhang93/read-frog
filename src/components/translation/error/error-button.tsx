@@ -1,4 +1,4 @@
-import type { APICallError } from "ai"
+type APICallError = Error & { statusCode?: number; responseBody?: string }
 import { IconAlertCircle } from "@tabler/icons-react"
 import { use } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/base-ui/alert"

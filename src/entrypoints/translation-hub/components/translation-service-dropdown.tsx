@@ -49,7 +49,7 @@ export function TranslationServiceDropdown() {
     }
   }
 
-  const llmProviders = getLLMProvidersConfig(filteredProvidersConfig)
+  const llmProviders: ReturnType<typeof getLLMProvidersConfig> = []
   const nonAPIProviders = getNonAPIProvidersConfig(filteredProvidersConfig)
   const pureAPIProviders = getPureAPIProvidersConfig(filteredProvidersConfig)
   const selectableProviders = getSelectableProvidersForCapability(

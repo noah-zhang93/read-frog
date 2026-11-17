@@ -2,7 +2,7 @@ import type { Config } from "@/types/config/config"
 import type { ConfigMeta } from "@/types/config/meta"
 import { storage } from "#imports"
 import { configSchema } from "@/types/config/config"
-import { isAPIProviderConfig } from "@/types/config/provider"
+import { isAPIProviderConfig, isPureTranslateProviderConfig } from "@/types/config/provider"
 import { initI18n } from "@/utils/i18n"
 import { createLogger } from "@/utils/logging/logger"
 import {
@@ -11,6 +11,7 @@ import {
   CONFIG_STORAGE_KEY,
   DEFAULT_CONFIG,
 } from "../constants/config"
+import { MICROSOFT_TRANSLATE_PROVIDER_ID } from "../constants/providers"
 import { runMigration } from "./migration"
 
 const log = createLogger("config/init")
@@ -61,6 +62,12 @@ export async function initializeConfig(): Promise<InitializeConfigResult> {
       log.error("Config migration failed", { version: nextVersion, error })
       currentVersion = nextVersion
     }
+  }
+
+  const sanitized = sanitizeDisabledAiConfig(config)
+  if (sanitized.changed) {
+    config = sanitized.config
+    didConfigChange = true
   }
 
   const parsedConfig = configSchema.safeParse(config)
@@ -155,4 +162,112 @@ function applyDevBetaExperience(config: Config): { config: Config; changed: bool
     },
     changed: true,
   }
+}
+
+/**
+ * Ensure any previously stored AI-only settings or AI provider selections are
+ * disabled/reassigned to a non-AI translate provider without discarding the
+ * user's other settings.
+ */
+function sanitizeDisabledAiConfig(config: Config): { config: Config; changed: boolean } {
+  const providers = Array.isArray(config.providersConfig) ? config.providersConfig : []
+  const fallbackTranslateProviderId =
+    providers.find((p) => p.enabled && isPureTranslateProviderConfig(p))?.id ??
+    MICROSOFT_TRANSLATE_PROVIDER_ID
+
+  const isAllowedTranslateProviderId = (id: string) =>
+    providers.some((p) => p.id === id && p.enabled && isPureTranslateProviderConfig(p))
+
+  let changed = false
+  let nextConfig = config
+
+  if (
+    nextConfig.pageTranslation &&
+    !isAllowedTranslateProviderId(nextConfig.pageTranslation.providerId)
+  ) {
+    nextConfig = {
+      ...nextConfig,
+      pageTranslation: { ...nextConfig.pageTranslation, providerId: fallbackTranslateProviderId },
+    }
+    changed = true
+  }
+  if (nextConfig.pageTranslation?.enableAIContentAware) {
+    nextConfig = {
+      ...nextConfig,
+      pageTranslation: { ...nextConfig.pageTranslation, enableAIContentAware: false },
+    }
+    changed = true
+  }
+  if (
+    nextConfig.videoSubtitles &&
+    !isAllowedTranslateProviderId(nextConfig.videoSubtitles.providerId)
+  ) {
+    nextConfig = {
+      ...nextConfig,
+      videoSubtitles: { ...nextConfig.videoSubtitles, providerId: fallbackTranslateProviderId },
+    }
+    changed = true
+  }
+  if (nextConfig.videoSubtitles?.aiSegmentation) {
+    nextConfig = {
+      ...nextConfig,
+      videoSubtitles: { ...nextConfig.videoSubtitles, aiSegmentation: false },
+    }
+    changed = true
+  }
+  if (
+    nextConfig.selectionToolbar?.features?.translate &&
+    !isAllowedTranslateProviderId(nextConfig.selectionToolbar.features.translate.providerId)
+  ) {
+    nextConfig = {
+      ...nextConfig,
+      selectionToolbar: {
+        ...nextConfig.selectionToolbar,
+        features: {
+          ...nextConfig.selectionToolbar.features,
+          translate: {
+            ...nextConfig.selectionToolbar.features.translate,
+            providerId: fallbackTranslateProviderId,
+          },
+        },
+      },
+    }
+    changed = true
+  }
+  if (
+    nextConfig.inputTranslation &&
+    !isAllowedTranslateProviderId(nextConfig.inputTranslation.providerId)
+  ) {
+    nextConfig = {
+      ...nextConfig,
+      inputTranslation: { ...nextConfig.inputTranslation, providerId: fallbackTranslateProviderId },
+    }
+    changed = true
+  }
+  if (nextConfig.languageDetection?.mode === "llm") {
+    nextConfig = {
+      ...nextConfig,
+      languageDetection: { ...nextConfig.languageDetection, mode: "basic" },
+    }
+    changed = true
+  }
+  if (nextConfig.selectionToolbar?.noteSuggestion?.enabled) {
+    nextConfig = {
+      ...nextConfig,
+      selectionToolbar: {
+        ...nextConfig.selectionToolbar,
+        noteSuggestion: { ...nextConfig.selectionToolbar.noteSuggestion, enabled: false },
+      },
+    }
+    changed = true
+  }
+  if (nextConfig.glossary?.enabled) {
+    nextConfig = {
+      ...nextConfig,
+      glossary: { ...nextConfig.glossary, enabled: false },
+    }
+    changed = true
+  }
+
+  return { config: nextConfig, changed }
 }

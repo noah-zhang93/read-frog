@@ -22,10 +22,8 @@ import tensdaqLogoColor from "@/assets/providers/tensdaq-color.svg?url&no-inline
 import { env } from "@/env"
 import {
   API_PROVIDER_TYPES,
-  DEDICATED_LLM_PROVIDER_TYPES,
   NON_API_TRANSLATE_PROVIDERS,
   NON_API_TRANSLATE_PROVIDERS_MAP,
-  PROTOCOL_COMPATIBLE_LLM_PROVIDER_TYPES,
   PURE_API_PROVIDER_TYPES,
   PURE_TRANSLATE_PROVIDERS,
   TRANSLATE_PROVIDER_TYPES,
@@ -737,10 +735,10 @@ export const PROVIDER_URL_PLACEHOLDERS: Partial<Record<APIProviderTypes, string>
 export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG["google-translate"],
   DEFAULT_PROVIDER_CONFIG["microsoft-translate"],
-  DEFAULT_PROVIDER_CONFIG.openai,
-  DEFAULT_PROVIDER_CONFIG.jalapenocloud,
-  DEFAULT_PROVIDER_CONFIG.ifapi,
-  DEFAULT_PROVIDER_CONFIG.deepseek,
+  {
+    ...DEFAULT_PROVIDER_CONFIG.deeplx,
+    enabled: false,
+  },
 ]
 
 /** Resolve a provider's default description in the active interface language. */
@@ -794,14 +792,6 @@ export function getProviderItemName(providerType: APIProviderTypes): string {
 }
 
 export const PROVIDER_GROUPS = {
-  builtInProviders: {
-    types: DEDICATED_LLM_PROVIDER_TYPES,
-    tutorialSlug: "built-in-providers",
-  },
-  compatibleProviders: {
-    types: PROTOCOL_COMPATIBLE_LLM_PROVIDER_TYPES,
-    tutorialSlug: "openai-compatible-providers",
-  },
   pureTranslationProviders: {
     types: PURE_API_PROVIDER_TYPES,
     tutorialSlug: "pure-translation-providers",

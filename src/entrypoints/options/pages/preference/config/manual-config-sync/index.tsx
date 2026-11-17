@@ -34,7 +34,6 @@ import { i18n } from "@/utils/i18n"
 import { queryClient } from "@/utils/tanstack-query"
 import { ConfigItem } from "../../../../components/config-item"
 import { ViewConfig } from "../../../../components/view-config"
-import { useGlossaryInvalidation } from "../../../advanced/glossary/use-glossary"
 
 export function ManualConfigSyncConfigItems() {
   const config = useAtomValue(configAtom)
@@ -61,7 +60,7 @@ export function ManualConfigSyncConfigItems() {
 function ImportConfig() {
   const currentConfig = useAtomValue(configAtom)
   const setConfig = useSetAtom(writeConfigAtom)
-  const invalidateGlossary = useGlossaryInvalidation()
+  const invalidateGlossary = async () => {}
 
   const { mutate: importConfig, isPending: isImporting } = useMutation({
     mutationFn: async (file: File) => {

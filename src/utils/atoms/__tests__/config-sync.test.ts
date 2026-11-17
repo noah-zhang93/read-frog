@@ -4,6 +4,7 @@ import type { Config } from "@/types/config/config"
 import { createStore } from "jotai"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
+import { DEFAULT_PROVIDER_CONFIG } from "@/utils/constants/providers"
 import { configAtom, writeConfigAtom } from "../config"
 import { patchActionConfigAtom, patchProviderConfigAtom } from "../entity-config"
 import { storageAdapter } from "../storage-adapter"
@@ -42,7 +43,13 @@ function mountStore() {
 
 describe("config persistence and invalidation", () => {
   beforeEach(() => {
-    storage.value = structuredClone(DEFAULT_CONFIG)
+    storage.value = {
+      ...structuredClone(DEFAULT_CONFIG),
+      providersConfig: [
+        ...structuredClone(DEFAULT_CONFIG.providersConfig),
+        structuredClone(DEFAULT_PROVIDER_CONFIG.deepl),
+      ],
+    }
     vi.mocked(storageAdapter.get).mockClear()
     vi.mocked(storageAdapter.set).mockClear()
     vi.mocked(storageAdapter.setMeta).mockClear()
@@ -54,7 +61,7 @@ describe("config persistence and invalidation", () => {
   it("re-evaluates a pure updater against fresh storage and preserves unrelated changes", async () => {
     const store = mountStore()
     await tick()
-    const source = storage.value.providersConfig.find((provider) => provider.provider === "openai")!
+    const source = storage.value.providersConfig.find((provider) => provider.provider === "deepl")!
     storage.value.providersConfig = storage.value.providersConfig.map((provider) =>
       provider.id === source.id
         ? { ...provider, description: "external", headers: { old: "value" } }
@@ -204,7 +211,7 @@ describe("config persistence and invalidation", () => {
   it("rejects an entity deleted before the queued update instead of recreating it", async () => {
     const store = mountStore()
     await tick()
-    const source = storage.value.providersConfig.find((provider) => provider.provider === "openai")!
+    const source = storage.value.providersConfig.find((provider) => provider.provider === "deepl")!
     storage.value.providersConfig = storage.value.providersConfig.filter(
       (provider) => provider.id !== source.id,
     )

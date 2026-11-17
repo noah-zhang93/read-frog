@@ -1,14 +1,10 @@
 import type { SubtitlePromptContext } from "@/types/content"
 import { normalizeLanguageConfig } from "@/utils/config/languages"
-import { cleanText } from "@/utils/content/utils"
 import { db } from "@/utils/db/dexie/db"
-import { Sha256Hex } from "@/utils/hash"
 import { executeTranslate } from "@/utils/host/translate/execute-translate"
 import { normalizePromptContextValue } from "@/utils/host/translate/translate-text"
 import { onMessage } from "@/utils/message"
 import { getSubtitlesTranslatePrompt } from "@/utils/prompts/subtitles"
-import { canProviderRefGenerateText } from "@/utils/providers/provider-ref"
-import { getOrGenerateTranslationContextSummary } from "./translation-context-summary"
 import {
   createSubtitlesTranslationQueues,
   getLocalProviderConfig,
@@ -93,27 +89,7 @@ export function setupSubtitlesTranslationHandlers(): void {
     return result
   })
 
-  onMessage("getSubtitlesSummary", async (message) => {
-    const { requestQueue } = await queuesPromise
-    const { videoTitle, subtitlesContext, providerRef } = message.data
-
-    // Guarded on both sides: the content script should not send this for a
-    // provider with no model to prompt, and the queue must not admit a task
-    // that can only throw if it does.
-    if (!videoTitle || !subtitlesContext || !canProviderRefGenerateText(providerRef)) {
-      return null
-    }
-
-    return await getOrGenerateTranslationContextSummary({
-      title: videoTitle,
-      textContent: subtitlesContext,
-      providerRef,
-      hostedFeature: "videoSubtitles",
-      // Deliberately without the title, matching the previous key: a video's
-      // transcript identifies it, and including a title that players mutate
-      // would miss the cache on every re-render.
-      cacheKeyParts: [Sha256Hex(cleanText(subtitlesContext))],
-      requestQueue,
-    })
+  onMessage("getSubtitlesSummary", async () => {
+    return null
   })
 }

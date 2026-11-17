@@ -4,12 +4,6 @@ import type {
   FeatureUsedEventProperties,
   SurfaceByFeature,
 } from "@/types/analytics"
-import { classifyFailureReason } from "@/utils/analytics-failure-reason"
-import { ANALYTICS_FEATURE_USED_EVENT } from "@/utils/constants/analytics"
-import { createLogger } from "@/utils/logging/logger"
-import { sendMessage } from "@/utils/message"
-
-const log = createLogger("analytics")
 
 type WithTiming<T> = T extends unknown
   ? Omit<T, "latency_ms"> & { startedAt: number; finishedAt?: number }
@@ -47,31 +41,13 @@ export function buildFeatureUsedEventProperties(
   }
 }
 
-export async function trackFeatureUsed(input: FeatureUsedEventInput): Promise<void> {
-  try {
-    await sendMessage("trackFeatureUsedEvent", buildFeatureUsedEventProperties(input))
-  } catch (error) {
-    log.warn(`Failed to track ${ANALYTICS_FEATURE_USED_EVENT}`, { error })
-  }
+export async function trackFeatureUsed(_input: FeatureUsedEventInput): Promise<void> {
+  // Telemetry disabled
 }
 
 export async function trackFeatureAttempt<T>(
-  context: FeatureAttemptInput,
+  _context: FeatureAttemptInput,
   run: () => Promise<T>,
 ): Promise<T> {
-  try {
-    const result = await run()
-    void trackFeatureUsed({
-      ...context,
-      outcome: "success",
-    })
-    return result
-  } catch (error) {
-    void trackFeatureUsed({
-      ...context,
-      outcome: "failure",
-      failure_reason: classifyFailureReason(error),
-    })
-    throw error
-  }
+  return run()
 }

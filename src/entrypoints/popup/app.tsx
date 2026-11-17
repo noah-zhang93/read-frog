@@ -3,7 +3,6 @@ import { UserAccountMenuPopup } from "@/components/user-account-menu"
 import { i18n } from "@/utils/i18n"
 import { openOptionsPage } from "@/utils/navigation"
 import { version } from "../../../package.json"
-import { AISmartContext } from "./components/ai-smart-context"
 import { AlwaysTranslate } from "./components/always-translate"
 import BlogNotification from "./components/blog-notification"
 import { DiscordButton } from "./components/discord-button"
@@ -14,7 +13,6 @@ import ProvidersField from "./components/providers-field"
 import { SiteControlToggle } from "./components/site-control-toggle"
 import { StoreReviewPrompt } from "./components/store-review-prompt"
 import TranslateButton from "./components/translate-button"
-import TranslatePromptSelector from "./components/translate-prompt-selector"
 import { TranslationHubButton } from "./components/translation-hub-button"
 import TranslationModeSelector from "./components/translation-mode-selector"
 
@@ -36,7 +34,6 @@ function App() {
           </div>
           <LanguageOptionsSelector />
           <ProvidersField />
-          <TranslatePromptSelector />
           <div className="flex w-full items-center gap-2">
             <TranslationModeSelector />
             <TranslateButton className="min-w-0 flex-1" />
@@ -44,7 +41,6 @@ function App() {
           <SiteControlToggle />
           <AlwaysTranslate />
           <Hotkey />
-          <AISmartContext />
         </div>
         {/* Out of flow on purpose: the card appears on its own schedule, and letting it
             grow the popup would shift every control out from under the user's cursor. */}

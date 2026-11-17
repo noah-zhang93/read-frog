@@ -36,7 +36,7 @@ import {
 } from "@/utils/subtitles/processor/translator"
 import { downloadSubtitlesAsSrt } from "@/utils/subtitles/srt"
 import { showAiSubtitlesWallToast, showSubtitlesErrorToast } from "@/utils/subtitles/toast"
-import { requestVideoSummary, VIDEO_SUMMARY_QUERY_SCOPE } from "@/utils/subtitles/video-summary"
+import { VIDEO_SUMMARY_QUERY_SCOPE } from "@/utils/subtitles/video-summary"
 import { queryClient } from "@/utils/tanstack-query"
 import {
   adPlayingAtom,
@@ -269,38 +269,8 @@ export class UniversalVideoAdapter implements SubtitlesProvidersAdapter {
     await this.trackChangeRefreshPromise
   }
 
-  generateVideoSummary = async (config: Config, videoId = this.config.getVideoId?.() ?? null) => {
-    // A stale query must not cancel the new video's stream or borrow its subtitles.
-    if (
-      videoId === null ||
-      videoId !== subtitlesStore.get(currentVideoIdAtom) ||
-      videoId !== (this.config.getVideoId?.() ?? null)
-    ) {
-      throw new DOMException("Video summary superseded", "AbortError")
-    }
-    this.summaryAbortController?.abort()
-    const abortController = new AbortController()
-    this.summaryAbortController = abortController
-    const { signal } = abortController
-    subtitlesStore.set(videoSummaryPartialAtom, "")
-    try {
-      await this.getOrLoadSourceSubtitles(signal)
-      signal.throwIfAborted()
-      const summary = await requestVideoSummary(this.sourceProcessedSubtitles, config, {
-        signal,
-        onChunk: (partialMarkdown) => {
-          if (!signal.aborted) {
-            subtitlesStore.set(videoSummaryPartialAtom, partialMarkdown)
-          }
-        },
-      })
-      signal.throwIfAborted()
-      return summary
-    } finally {
-      if (this.summaryAbortController === abortController) {
-        this.summaryAbortController = null
-      }
-    }
+  generateVideoSummary = async (_config: Config, _videoId = this.config.getVideoId?.() ?? null) => {
+    return null
   }
 
   hasSubtitlesAvailable = () => this.fetcher.hasAvailableSubtitles()
@@ -793,11 +763,7 @@ export class UniversalVideoAdapter implements SubtitlesProvidersAdapter {
   }
 
   requestAiSubtitles = async (): Promise<void> => {
-    if (await this.config.isLiveContent?.()) {
-      showAiSubtitlesWallToast(i18n.t("subtitles.errors.aiLiveReplayUnsupported"))
-      return
-    }
-    return this.switchSubtitlesFetcher(SUBTITLES_SOURCE.AI)
+    // AI subtitles disabled
   }
 
   private async switchSubtitlesFetcher(
@@ -1153,7 +1119,7 @@ export class UniversalVideoAdapter implements SubtitlesProvidersAdapter {
     const scheduler = this.subtitlesScheduler
     if (!scheduler) return
 
-    const useAiSegmentation = !!config?.videoSubtitles?.aiSegmentation
+    const useAiSegmentation = false
 
     const sessionFragments = [...this.sourceProcessedSubtitles]
 

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { GOOGLE_TRANSLATE_PROVIDER_ID } from "@/utils/constants/providers"
+import {
+  GOOGLE_TRANSLATE_PROVIDER_ID,
+  MICROSOFT_TRANSLATE_PROVIDER_ID,
+} from "@/utils/constants/providers"
 import {
   getTranslationOnlyBlockedReason,
   providerSupportsTranslationOnlyMode,
@@ -22,8 +25,16 @@ describe("providerSupportsTranslationOnlyMode", () => {
 })
 
 describe("getTranslationOnlyBlockedReason", () => {
-  it("blocks a fresh profile, which ships on Microsoft", () => {
-    expect(getTranslationOnlyBlockedReason(DEFAULT_CONFIG)).not.toBeNull()
+  it("blocks when page translation uses Microsoft", () => {
+    const config = {
+      ...DEFAULT_CONFIG,
+      pageTranslation: {
+        ...DEFAULT_CONFIG.pageTranslation,
+        providerId: MICROSOFT_TRANSLATE_PROVIDER_ID,
+      },
+    }
+
+    expect(getTranslationOnlyBlockedReason(config)).not.toBeNull()
   })
 
   it("clears once page translation moves to a provider that keeps markup", () => {

@@ -5,7 +5,6 @@ import { restoreUndoSnapshot } from "@/utils/glossary/sync/local-store"
 import { commitGlossarySync, planGlossarySync } from "@/utils/glossary/sync/sync"
 import { i18n } from "@/utils/i18n"
 import { createLogger } from "@/utils/logging/logger"
-import { useGlossaryInvalidation } from "../../../advanced/glossary/use-glossary"
 
 const log = createLogger("options/pages/preference/config/google-drive-sync/use-glossary-sync")
 
@@ -31,7 +30,7 @@ function t(key: string, substitutions?: string[]) {
  */
 export function useGlossarySync() {
   const [pendingPlan, setPendingPlan] = useState<GlossarySyncPlan | null>(null)
-  const invalidateGlossary = useGlossaryInvalidation()
+  const invalidateGlossary = async () => {}
 
   const commit = async (plan: GlossarySyncPlan, resolutions: ConflictResolutions) => {
     const result = await commitGlossarySync(plan, resolutions)

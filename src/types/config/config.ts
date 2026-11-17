@@ -1,10 +1,6 @@
 import { langLevel } from "@read-frog/definitions"
 import { z } from "zod"
-import {
-  BUILT_IN_ACTION_IDS,
-  BUILT_IN_ACTION_KEYS,
-  isBuiltInActionId,
-} from "@/utils/constants/custom-action"
+import { isBuiltInActionId } from "@/utils/constants/custom-action"
 import { FEATURE_KEYS, FEATURE_PROVIDER_DEFS } from "@/utils/constants/feature-providers"
 import {
   MAX_SELECTION_OVERLAY_OPACITY,
@@ -15,12 +11,14 @@ import { DEFAULT_TRANSLATION_HUB_SHORTCUT_KEY } from "@/utils/constants/translat
 import {
   doesProviderSupportsCapability,
   getProviderIdsForCapability,
+  isSystemProviderId,
 } from "@/utils/providers/provider-registry"
 import { normalizeSelectionToolbarLists } from "@/utils/selection-toolbar-order"
 import { floatingButtonSchema } from "./floating-button"
 import { glossaryConfigSchema } from "./glossary"
 import { languageDetectionConfigSchema } from "./language-detection"
 import { storedLanguageTagSchema } from "./language-tag"
+import { isTranslateProviderConfig } from "./provider"
 import { providersConfigSchema } from "./provider"
 import {
   selectionToolbarBuiltInActionsSchema,
@@ -218,8 +216,13 @@ export const configSchema = z
     for (const featureKey of FEATURE_KEYS) {
       const def = FEATURE_PROVIDER_DEFS[featureKey]
       const providerId = def.getProviderId(data)
+      const storedProvider = data.providersConfig.find((p) => p.id === providerId)
+      const isValidStoredTranslateProvider =
+        !!storedProvider && storedProvider.enabled && isTranslateProviderConfig(storedProvider)
 
       if (
+        !isValidStoredTranslateProvider &&
+        !isSystemProviderId(providerId) &&
         !doesProviderSupportsCapability(featureKey, data.providersConfig, providerId, {
           requireEnable: true,
         })
@@ -235,66 +238,6 @@ export const configSchema = z
         continue
       }
     }
-
-    // Validate languageDetection: when mode is "llm", providerId must be a valid enabled LLM provider
-    if (data.languageDetection.mode === "llm") {
-      const ldProviderId = data.languageDetection.providerId
-      if (!ldProviderId) {
-        ctx.addIssue({
-          code: "custom",
-          message: `Language detection mode is "llm" but no providerId is configured.`,
-          path: ["languageDetection", "providerId"],
-        })
-      } else if (
-        // Capability-based, like the FEATURE_KEYS loop above, rather than a
-        // providersConfig lookup: Built-in AI is never a row in
-        // providersConfig, so requiring one there is what used to make a
-        // hosted provider fail validation and reset the whole config.
-        !doesProviderSupportsCapability("languageDetection", data.providersConfig, ldProviderId, {
-          requireEnable: true,
-        })
-      ) {
-        ctx.addIssue({
-          code: "invalid_value",
-          values: getProviderIdsForCapability("languageDetection", data.providersConfig, {
-            requireEnable: true,
-          }),
-          message: `Invalid provider id "${ldProviderId}".`,
-          path: ["languageDetection", "providerId"],
-        })
-      }
-    }
-
-    const actionProviderEntries = [
-      ...BUILT_IN_ACTION_IDS.map((id) => {
-        const key = BUILT_IN_ACTION_KEYS[id]
-        return {
-          providerId: data.selectionToolbar.builtInActions[key].providerId,
-          path: ["selectionToolbar", "builtInActions", key, "providerId"] as const,
-        }
-      }),
-      ...data.selectionToolbar.customActions.map((action, index) => ({
-        providerId: action.providerId,
-        path: ["selectionToolbar", "customActions", index, "providerId"] as const,
-      })),
-    ]
-
-    actionProviderEntries.forEach(({ providerId, path }) => {
-      if (
-        !doesProviderSupportsCapability("customAction", data.providersConfig, providerId, {
-          requireEnable: true,
-        })
-      ) {
-        ctx.addIssue({
-          code: "invalid_value",
-          values: getProviderIdsForCapability("customAction", data.providersConfig, {
-            requireEnable: true,
-          }),
-          message: `Invalid provider id "${providerId}".`,
-          path: [...path],
-        })
-      }
-    })
   })
 
 export type Config = z.infer<typeof configSchema>

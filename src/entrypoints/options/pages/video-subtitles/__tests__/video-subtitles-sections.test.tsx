@@ -6,7 +6,6 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { CustomPromptsSection } from "../custom-prompts"
 import { PreferenceSection } from "../preference"
 import { SubtitlesSitesPage } from "../preference/sites-page"
 import { SubtitlesStyleSection } from "../subtitles-style"
@@ -68,7 +67,17 @@ async function pick(trigger: HTMLElement, optionText: string) {
 
 describe("video subtitles page sections", () => {
   beforeEach(() => {
-    testState.videoSubtitles = structuredClone(DEFAULT_CONFIG.videoSubtitles)
+    testState.videoSubtitles = {
+      ...structuredClone(DEFAULT_CONFIG.videoSubtitles),
+      platforms: {
+        youtube: "manual",
+        xcom: "manual",
+        netflix: "manual",
+        bilibili: "manual",
+        udemy: "manual",
+        edx: "manual",
+      },
+    }
     setVideoSubtitlesMock.mockReset()
     setVideoSubtitlesMock.mockResolvedValue()
   })
@@ -77,12 +86,6 @@ describe("video subtitles page sections", () => {
     renderInRouter(<SubtitlesStyleSection />)
 
     expect(screen.getByRole("link")).toHaveAttribute("href", "/video-subtitles/style")
-  })
-
-  it("sends the prompts row to the page that holds the prompt list", () => {
-    renderInRouter(<CustomPromptsSection />)
-
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/video-subtitles/prompts")
   })
 
   it("sends the enable row to the page that holds each platform's mode", () => {
@@ -106,13 +109,10 @@ describe("video subtitles page sections", () => {
     expect([...logos].filter((logo) => logo.classList.contains("grayscale"))).toHaveLength(1)
   })
 
-  it("writes each switch on its own, leaving the other alone", () => {
+  it("toggles pause on hover", () => {
     renderInRouter(<PreferenceSection />)
 
-    const [aiSegmentation, pauseOnHover] = screen.getAllByRole("switch")
-
-    fireEvent.click(aiSegmentation!)
-    expect(setVideoSubtitlesMock).toHaveBeenCalledWith({ aiSegmentation: true })
+    const [pauseOnHover] = screen.getAllByRole("switch")
 
     expect(pauseOnHover).not.toBeChecked()
     fireEvent.click(pauseOnHover!)

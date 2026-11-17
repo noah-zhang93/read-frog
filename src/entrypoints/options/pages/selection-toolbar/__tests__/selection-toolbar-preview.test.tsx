@@ -4,7 +4,6 @@ import type { Config } from "@/types/config/config"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { findSelectionToolbarAction } from "@/utils/custom-actions"
 import { ANNOTATION_ICON } from "@/utils/iconify/bundled-icons"
 import { SelectionToolbarPreview } from "../selection-toolbar-preview"
 
@@ -40,10 +39,6 @@ vi.mock("@tabler/icons-react", async (importOriginal) => ({
   IconVolume: () => <span data-icon="speak" />,
 }))
 
-function iconOf(actionId: string) {
-  return findSelectionToolbarAction(testState.selectionToolbar!, actionId)!.icon
-}
-
 function toolbarIcons() {
   return [...screen.getByRole("img").querySelectorAll("[data-icon]")].map((icon) =>
     icon.getAttribute("data-icon"),
@@ -58,27 +53,17 @@ describe("selection toolbar preview", () => {
   it("shows the annotation button, then the pinned items in the toolbar's order", () => {
     render(<SelectionToolbarPreview />)
 
-    // Improve Writing starts unpinned: it waits in the "more" menu.
-    expect(toolbarIcons()).toEqual([
-      ANNOTATION_ICON,
-      "translate",
-      "speak",
-      iconOf("default-dictionary"),
-      iconOf("default-sentence-analysis"),
-    ])
+    expect(toolbarIcons()).toEqual([ANNOTATION_ICON, "translate"])
   })
 
   it("leaves out items that are unpinned or turned off, and the annotation button when it's off", () => {
     testState.selectionToolbar!.annotation.enabled = false
     testState.selectionToolbar!.features.speak.enabled = false
-    testState.selectionToolbar!.unpinned = ["translate", "default-improve-writing"]
+    testState.selectionToolbar!.unpinned = ["translate"]
 
     render(<SelectionToolbarPreview />)
 
-    expect(toolbarIcons()).toEqual([
-      iconOf("default-dictionary"),
-      iconOf("default-sentence-analysis"),
-    ])
+    expect(toolbarIcons()).toEqual([])
   })
 
   it("draws the toolbar at the opacity the settings give it", () => {

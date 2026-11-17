@@ -6,7 +6,6 @@ import { AUTH_CACHE_GROUP_KEY, DEFAULT_PROXY_CACHE_TTL_MS } from "@/utils/consta
 import { createLogger } from "@/utils/logging/logger"
 import { onMessage } from "@/utils/message"
 import { SessionCacheGroupRegistry } from "../../utils/session-cache/session-cache-group-registry"
-import { clearHostedAiStatusCache } from "./hosted-ai-status"
 
 const log = createLogger("background/proxy-fetch")
 
@@ -46,7 +45,7 @@ export function proxyFetch() {
     // carries no identity to check itself against, so it rides this hook rather
     // than keying on a user id — reading one in the background costs a
     // get-session round trip, the very traffic this listener exists to avoid.
-    await Promise.all([sessionCache.clear(), clearHostedAiStatusCache()])
+    await sessionCache.clear()
   }
 
   // Listen for cookie changes to invalidate auth-related cache

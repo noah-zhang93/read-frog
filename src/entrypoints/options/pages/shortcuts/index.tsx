@@ -1,6 +1,5 @@
 import { i18n } from "@/utils/i18n"
 import { PageLayout } from "../../components/page-layout"
-import { ActionShortcuts } from "./action-shortcuts"
 import { NodeTranslationHotkey } from "./node-translation-hotkey"
 import { PageTranslationShortcut } from "./page-translation-shortcut"
 import { SelectionAnnotationModeShortcut } from "./selection-annotation-mode-shortcut"
@@ -34,7 +33,6 @@ export function ShortcutsPage() {
       <SubtitlesToggleShortcut />
       <NodeTranslationHotkey />
       <TranslationHubShortcut />
-      <ActionShortcuts />
     </PageLayout>
   )
 }

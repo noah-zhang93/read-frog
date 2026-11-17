@@ -5,9 +5,8 @@ import { i18n } from "@/utils/i18n"
 import { ConfigItem } from "../../../components/config-item"
 import { ConfigSection } from "../../../components/config-section"
 import { ShortcutLink } from "../../../components/shortcut-link"
-import { NoteSuggestionItems } from "./note-suggestion-items"
 
-/** What the toolbar can do with a selection: the two built-in buttons, and the save prompt. */
+/** What the toolbar can do with a selection: the two built-in buttons. */
 export function ActionsSection() {
   const [selectionToolbar, setSelectionToolbar] = useAtom(configFieldsAtomMap.selectionToolbar)
   const { features } = selectionToolbar
@@ -57,7 +56,6 @@ export function ActionsSection() {
           onCheckedChange={(checked) => setFeatureEnabled("speak", checked)}
         />
       </ConfigItem>
-      <NoteSuggestionItems />
     </ConfigSection>
   )
 }

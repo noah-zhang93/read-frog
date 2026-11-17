@@ -8,7 +8,6 @@ import { ConfigItem } from "../../../components/config-item"
 import { ConfigNavItem } from "../../../components/config-nav-item"
 import { ConfigSection } from "../../../components/config-section"
 import { SubtitlesPlatformIcon } from "./platform-icon"
-import { WordLookupActionItem } from "./word-lookup-action-item"
 
 /**
  * Where subtitles get translated and how they start, and whether AI re-cuts the lines first —
@@ -44,19 +43,6 @@ export function PreferenceSection() {
         }
         description={i18n.t("options.videoSubtitles.preference.enable.description")}
       />
-      <ConfigItem
-        id="subtitles-ai-segmentation"
-        title={i18n.t("options.videoSubtitles.preference.aiSegmentation.title")}
-        description={i18n.t("options.videoSubtitles.preference.aiSegmentation.description")}
-      >
-        <Switch
-          checked={videoSubtitlesConfig.aiSegmentation}
-          onCheckedChange={(aiSegmentation) => {
-            void setVideoSubtitlesConfig({ aiSegmentation })
-          }}
-        />
-      </ConfigItem>
-      <WordLookupActionItem />
       <ConfigItem
         id="subtitles-pause-on-hover"
         title={i18n.t("options.videoSubtitles.preference.pauseOnHover.title")}

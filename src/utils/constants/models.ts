@@ -1,4 +1,4 @@
-import type { JSONValue } from "ai"
+import type { JSONValue } from "@/types/background-stream"
 
 // Reviewed against provider catalogs and AI SDK docs on 2026-11-04.
 // Keep existing IDs: persisted provider configs validate against these enums.

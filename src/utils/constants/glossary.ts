@@ -11,10 +11,7 @@ export const MAX_GLOSSARY_SOURCE_LENGTH = 200
 export const MAX_GLOSSARY_TARGET_LENGTH = 200
 
 export const DEFAULT_GLOSSARY_CONFIG = {
-  // Costs nothing while the list is empty — an empty matcher returns no terms,
-  // so the rendered prompt is byte-identical to having no glossary at all — and
-  // it means a user's first term works without hunting for a switch.
-  enabled: true,
+  enabled: false,
 } as const
 
 /**

@@ -2,7 +2,6 @@ import type { Config } from "@/types/config/config"
 import type { SelectionToolbarCustomAction } from "@/types/config/selection-toolbar"
 import type { SelectionToolbarFeatureId } from "@/utils/constants/selection"
 import { SELECTION_TOOLBAR_FEATURE_IDS } from "@/utils/constants/selection"
-import { getSelectionToolbarActions } from "@/utils/custom-actions"
 import { normalizeSelectionToolbarLists } from "@/utils/selection-toolbar-order"
 
 type SelectionToolbarConfig = Config["selectionToolbar"]
@@ -35,16 +34,12 @@ export function getSelectionToolbarItems(
 ): SelectionToolbarItem[] {
   const { order, unpinned } = normalizeSelectionToolbarLists(selectionToolbar)
   const unpinnedIds = new Set(unpinned)
-  const actions = new Map(
-    getSelectionToolbarActions(selectionToolbar).map((action) => [action.id, action]),
-  )
   return order.flatMap((id): SelectionToolbarItem[] => {
     const pinned = !unpinnedIds.has(id)
     if (isFeatureId(id)) {
       return [{ kind: "feature", id, enabled: selectionToolbar.features[id].enabled, pinned }]
     }
-    const action = actions.get(id)
-    return action ? [{ kind: "action", id, enabled: action.enabled !== false, pinned, action }] : []
+    return []
   })
 }
 

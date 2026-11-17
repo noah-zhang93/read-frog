@@ -5,7 +5,6 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { browser } from "#imports"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { findSelectionToolbarAction } from "@/utils/custom-actions"
 import { i18n } from "@/utils/i18n"
 import { ContextMenuPreview } from "../context-menu-preview"
 
@@ -54,19 +53,9 @@ describe("context menu preview", () => {
     expect(screen.getByRole("img")).toHaveTextContent("Read Frog (browser)")
   })
 
-  it("makes the stage a row taller for each item past the five it holds", () => {
-    const { unmount } = render(<ContextMenuPreview />)
-    // Translate, read aloud and the three built-in actions.
-    expect(screen.getByRole("img").firstElementChild).toHaveStyle({ height: "330px" })
-    unmount()
-
-    testState.selectionToolbar!.customActions = [
-      { id: "rewrite", name: "Rewrite", enabled: true },
-      { id: "summarize", name: "Summarize", enabled: true },
-    ] as Config["selectionToolbar"]["customActions"]
+  it("keeps the stage at baseline height with translate and read-aloud items", () => {
     render(<ContextMenuPreview />)
-
-    expect(screen.getByRole("img").firstElementChild).toHaveStyle({ height: "374px" })
+    expect(screen.getByRole("img").firstElementChild).toHaveStyle({ height: "330px" })
   })
 
   it("fills the selection into the translate and read-aloud items", () => {
@@ -76,23 +65,6 @@ describe("context menu preview", () => {
     expect(preview).toHaveTextContent('Translate "Mr. Kamiya"')
     expect(preview).toHaveTextContent('Read aloud "Mr. Kamiya"')
     expect(preview).not.toHaveTextContent("%s")
-  })
-
-  it("shows the enabled actions and not the ones turned off", () => {
-    testState.selectionToolbar!.builtInActions.improveWriting.enabled = false
-    testState.selectionToolbar!.customActions = [
-      { id: "rewrite", name: "Rewrite", enabled: true },
-      { id: "summarize", name: "Summarize", enabled: false },
-    ] as Config["selectionToolbar"]["customActions"]
-
-    render(<ContextMenuPreview />)
-
-    const nameOf = (id: string) => findSelectionToolbarAction(testState.selectionToolbar!, id)!.name
-    const preview = screen.getByRole("img")
-    expect(preview).toHaveTextContent("Rewrite")
-    expect(preview).not.toHaveTextContent("Summarize")
-    expect(preview).toHaveTextContent(nameOf("default-dictionary"))
-    expect(preview).not.toHaveTextContent(nameOf("default-improve-writing"))
   })
 
   it("is one labelled image to assistive technology", () => {

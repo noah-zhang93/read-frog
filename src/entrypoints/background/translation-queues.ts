@@ -5,9 +5,12 @@ import type { BatchQueueConfig, RequestQueueConfig } from "@/types/config/transl
 import type { WebPagePromptContext } from "@/types/content"
 import type { ProviderRequestRouting } from "@/types/hosted-request"
 import type { MatchedTerm } from "@/utils/glossary/types"
-import type { PromptResolver } from "@/utils/host/translate/api/ai"
+type PromptResolver<TContext = unknown> = (
+  targetLang: string,
+  text: string,
+  options?: { isBatch?: boolean; context?: TContext; glossaryTerms?: readonly MatchedTerm[] },
+) => Promise<{ systemPrompt: string; prompt: string }>
 import type { SerializableProviderRef } from "@/utils/providers/provider-ref"
-import { LANGUAGE_ENGLISH_NAMES } from "@read-frog/definitions"
 import { storage } from "#imports"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { putBatchRequestRecord } from "@/utils/batch-request-record"
@@ -24,7 +27,6 @@ import { getTranslatePrompt } from "@/utils/prompts/translate"
 import { BatchQueue } from "@/utils/request/batch-queue"
 import { CancelledScopeRegistry, isTranslationCancelledError } from "@/utils/request/cancellation"
 import { RequestQueue } from "@/utils/request/request-queue"
-import { runStreamTextInBackground } from "./background-stream"
 import { ensureInitializedConfig } from "./config"
 
 const log = createLogger("background/translation-queues")
@@ -81,35 +83,13 @@ async function executeQueuedTranslation<TContext>(
     glossaryTerms?: readonly MatchedTerm[]
   } = {},
 ): Promise<string> {
-  const { provider, hostedFeature } = routing
+  const { provider } = routing
   const local = getLocalProviderConfig(provider)
   if (local) {
     return executeTranslate(text, langConfig, local, promptResolver, options)
   }
 
-  const system = provider as Extract<SerializableProviderRef, { kind: "system" }>
-  if (!options.hostedRequestId) {
-    throw new Error("Hosted page translation requires a stable requestId")
-  }
-  const targetLangName = LANGUAGE_ENGLISH_NAMES[langConfig.targetCode]
-  const { systemPrompt, prompt } = await promptResolver(targetLangName, text, {
-    isBatch: options.isBatch,
-    context: options.context,
-    glossaryTerms: options.glossaryTerms,
-  })
-  const result = await runStreamTextInBackground(
-    {
-      providerKind: "system",
-      providerId: system.providerId,
-      modelTier: system.modelTier,
-      requestId: options.hostedRequestId,
-      hostedFeature: requireHostedFeature(hostedFeature),
-      instructions: systemPrompt,
-      prompt,
-    },
-    { signal: options.signal },
-  )
-  return result.output.trim()
+  throw new Error("Hosted AI translation is disabled")
 }
 
 export function parseBatchResult(result: string): string[] {

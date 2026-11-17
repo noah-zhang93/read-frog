@@ -1,4 +1,4 @@
-import type { APICallError } from "ai"
+type APICallError = Error & { statusCode?: number; responseBody?: string }
 import { ErrorButton } from "./error-button"
 import { RetryButton } from "./retry-button"
 

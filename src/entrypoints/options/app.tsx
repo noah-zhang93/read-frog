@@ -1,6 +1,6 @@
 import type { ComponentType } from "react"
 import { lazy, Suspense } from "react"
-import { Navigate, Route, Routes } from "react-router"
+import { Route, Routes } from "react-router"
 import { ROUTE_DEFS } from "./app-sidebar/nav-items"
 
 type RoutePath = (typeof ROUTE_DEFS)[number]["path"]
@@ -13,9 +13,6 @@ const ShortcutsPage = lazy(() =>
 )
 const ApiProvidersPage = lazy(() =>
   import("./pages/api-providers").then((module) => ({ default: module.ApiProvidersPage })),
-)
-const CustomActionsPage = lazy(() =>
-  import("./pages/custom-actions").then((module) => ({ default: module.CustomActionsPage })),
 )
 const TranslationPage = lazy(() =>
   import("./pages/translation").then((module) => ({ default: module.TranslationPage })),
@@ -38,30 +35,12 @@ const InputTranslationPage = lazy(() =>
 const TextToSpeechPage = lazy(() =>
   import("./pages/text-to-speech").then((module) => ({ default: module.TextToSpeechPage })),
 )
-const GlossaryPage = lazy(() =>
-  import("./pages/advanced/glossary").then((module) => ({ default: module.GlossaryPage })),
-)
-const GlossaryEditorPage = lazy(() =>
-  import("./pages/advanced/glossary/editor-page").then((module) => ({
-    default: module.GlossaryEditorPage,
-  })),
-)
-
-/** Advanced has no page of its own; its group's only entry is the glossary. */
-function AdvancedRedirect() {
-  return <Navigate to="/advanced/glossary" replace />
-}
 const HelpAndCommunityPage = lazy(() =>
   import("./pages/help-and-community").then((module) => ({ default: module.HelpAndCommunityPage })),
 )
 const CustomCssPage = lazy(() =>
   import("./pages/translation/translation-style/custom-css").then((module) => ({
     default: module.CustomCssPage,
-  })),
-)
-const PersonalizedPromptsPage = lazy(() =>
-  import("./pages/translation/personalized-prompts/prompts").then((module) => ({
-    default: module.PersonalizedPromptsPage,
   })),
 )
 const AutoTranslateWebsitesPage = lazy(() =>
@@ -114,11 +93,6 @@ const SubtitlesStylePage = lazy(() =>
     default: module.SubtitlesStylePage,
   })),
 )
-const SubtitlesCustomPromptsPage = lazy(() =>
-  import("./pages/video-subtitles/custom-prompts/prompts").then((module) => ({
-    default: module.SubtitlesCustomPromptsPage,
-  })),
-)
 const SubtitlesQueuePage = lazy(() =>
   import("./pages/video-subtitles/subtitles-queue/queue-page").then((module) => ({
     default: module.SubtitlesQueuePage,
@@ -130,7 +104,6 @@ const ROUTE_COMPONENTS: Record<RoutePath, ComponentType> = {
   "/preference": PreferencePage,
   "/shortcuts": ShortcutsPage,
   "/api-providers": ApiProvidersPage,
-  "/custom-actions": CustomActionsPage,
   "/page-translation": TranslationPage,
   "/video-subtitles": VideoSubtitlesPage,
   "/floating-button": FloatingButtonPage,
@@ -138,14 +111,10 @@ const ROUTE_COMPONENTS: Record<RoutePath, ComponentType> = {
   "/context-menu": ContextMenuPage,
   "/input-translation": InputTranslationPage,
   "/tts": TextToSpeechPage,
-  "/advanced": AdvancedRedirect,
   "/help-and-community": HelpAndCommunityPage,
-  "/advanced/glossary": GlossaryPage,
-  "/advanced/glossary/:glossaryId": GlossaryEditorPage,
   "/preference/config-backup": ConfigBackupPage,
   "/preference/extension-activation": ExtensionActivationPage,
   "/page-translation/custom-css": CustomCssPage,
-  "/page-translation/prompts": PersonalizedPromptsPage,
   "/page-translation/translation-control": TranslationControlPage,
   "/page-translation/translation-control/auto-translate-websites": AutoTranslateWebsitesPage,
   "/page-translation/translation-control/never-auto-translate-websites":
@@ -155,7 +124,6 @@ const ROUTE_COMPONENTS: Record<RoutePath, ComponentType> = {
   "/video-subtitles/sites": SubtitlesSitesPage,
   "/video-subtitles/style": SubtitlesStylePage,
   "/video-subtitles/style/custom-css": SubtitlesCustomCssPage,
-  "/video-subtitles/prompts": SubtitlesCustomPromptsPage,
   "/video-subtitles/subtitles-queue": SubtitlesQueuePage,
 }
 

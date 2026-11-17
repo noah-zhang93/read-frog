@@ -5,7 +5,6 @@ import type { SubtitlePromptContext } from "@/types/content"
 import type { MatchedTerm } from "@/utils/glossary/types"
 import type { PromptableProviderRef, SerializableProviderRef } from "@/utils/providers/provider-ref"
 import { LANGUAGE_ENGLISH_NAMES } from "@read-frog/definitions"
-import { APICallError } from "ai"
 import { toastManager } from "@/components/ui/base-ui/toast"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { classifySerializedProvider } from "@/utils/analytics-provider"
@@ -57,8 +56,8 @@ const SUBTITLES_TASK_ROUTE: Record<SubtitlesTask, HostedAiTextStreamRoute> = {
 }
 
 function toFriendlyErrorMessage(error: unknown): string {
-  if (error instanceof APICallError) {
-    switch (error.statusCode) {
+  if (error && typeof error === "object" && "statusCode" in error) {
+    switch ((error as { statusCode?: number }).statusCode) {
       case 429:
         return i18n.t("subtitles.errors.aiRateLimited")
       case 401:

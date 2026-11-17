@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { APICallError } from "ai"
+type APICallError = Error & { statusCode?: number; responseBody?: string }
 import type { ReactElement } from "react"
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react"
 import { createStore, Provider } from "jotai"

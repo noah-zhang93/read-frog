@@ -72,58 +72,20 @@ describe("dEFAULT_CONFIG", () => {
     expect(DEFAULT_CONFIG.providersConfig.map((provider) => provider.id)).toEqual([
       "google-translate-default",
       "microsoft-translate-default",
-      "openai-default",
-      "jalapenocloud-default",
-      "ifapi-default",
-      "deepseek-default",
+      "deeplx-default",
     ])
-    expect(DEFAULT_CONFIG.pageTranslation.providerId).toBe("microsoft-translate-default")
+    expect(DEFAULT_CONFIG.pageTranslation.providerId).toBe("google-translate-default")
     expect(DEFAULT_CONFIG.selectionToolbar.features.translate.providerId).toBe(
-      "microsoft-translate-default",
+      "google-translate-default",
     )
-    expect(DEFAULT_CONFIG.inputTranslation.providerId).toBe("microsoft-translate-default")
-    expect(DEFAULT_CONFIG.videoSubtitles.providerId).toBe("microsoft-translate-default")
-    expect(
-      DEFAULT_CONFIG.providersConfig.find((provider) => provider.id === "jalapenocloud-default"),
-    ).toEqual(
-      expect.objectContaining({
-        model: {
-          model: "GLM-5.3",
-          isCustomModel: false,
-          customModel: null,
-        },
-      }),
-    )
-    expect(
-      DEFAULT_CONFIG.providersConfig.find((provider) => provider.id === "ifapi-default"),
-    ).toEqual(
-      expect.objectContaining({
-        baseURL: "https://cn.ifapi.org/v1",
-        model: {
-          model: "gpt-6-luna",
-          isCustomModel: false,
-          customModel: null,
-        },
-        providerOptions: { reasoning_effort: "none" },
-      }),
-    )
-    expect(
-      DEFAULT_CONFIG.providersConfig.find((provider) => provider.id === "deepseek-default"),
-    ).toEqual(
-      expect.objectContaining({
-        model: {
-          model: "deepseek-v4-flash",
-          isCustomModel: false,
-          customModel: null,
-        },
-      }),
-    )
+    expect(DEFAULT_CONFIG.inputTranslation.providerId).toBe("google-translate-default")
+    expect(DEFAULT_CONFIG.videoSubtitles.providerId).toBe("google-translate-default")
   })
 
-  it("defaults fresh hover translation off", async () => {
+  it("defaults fresh hover translation on with forceRetranslation", async () => {
     const { DEFAULT_CONFIG } = await import("../config")
 
-    expect(DEFAULT_CONFIG.pageTranslation.node.forceRetranslation).toBe(false)
+    expect(DEFAULT_CONFIG.pageTranslation.node.forceRetranslation).toBe(true)
   })
 
   it("keeps pre-v090 config parseable until the background migration runs", async () => {
@@ -157,7 +119,7 @@ describe("dEFAULT_CONFIG", () => {
       DEFAULT_CONFIG.selectionToolbar.customActions,
     )
     expect(config.selectionToolbar.builtInActions.dictionary).toEqual({
-      enabled: true,
+      enabled: false,
       providerId: "read-frog-free-ai",
     })
     expect(config.selectionToolbar.customActions).toEqual([])

@@ -76,17 +76,13 @@ describe("provider config updates", () => {
 })
 
 describe("feature provider refs", () => {
-  it("resolves Built-in AI without requiring a persisted provider config row", () => {
+  it("does not resolve Built-in AI when system AI providers are disabled", () => {
     const store = createStore()
     const config = structuredClone(DEFAULT_CONFIG)
     config.pageTranslation.providerId = BUILT_IN_AI_PROVIDER_ID
     store.set(configAtom, config)
 
-    expect(store.get(featureProviderRefAtom("pageTranslation"))).toMatchObject({
-      kind: "system",
-      id: BUILT_IN_AI_PROVIDER_ID,
-      modelTier: "normal",
-    })
+    expect(store.get(featureProviderRefAtom("pageTranslation"))).toBeNull()
   })
 
   it("continues to resolve persisted providers as local refs", () => {

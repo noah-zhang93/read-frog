@@ -182,11 +182,8 @@ describe("provider constants", () => {
     expect(providersConfigSchema.parse([existingConfig])).toEqual([existingConfig])
   })
 
-  it("groups both protocol adapters under the compatible providers key", () => {
-    expect(PROVIDER_GROUPS.compatibleProviders.types).toEqual(
-      PROTOCOL_COMPATIBLE_LLM_PROVIDER_TYPES,
-    )
-    expect(PROVIDER_GROUPS).not.toHaveProperty("openaiCompatibleProviders")
+  it("only exposes pure translation providers in provider groups", () => {
+    expect(Object.keys(PROVIDER_GROUPS)).toEqual(["pureTranslationProviders"])
   })
 
   it("places Azure immediately before Bedrock in provider pickers", () => {

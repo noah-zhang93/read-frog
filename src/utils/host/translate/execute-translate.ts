@@ -1,11 +1,8 @@
-import type { PromptResolver } from "./api/ai"
 import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
 import type { TranslationTextFormat } from "@/types/config/translate"
 import type { MatchedTerm } from "@/utils/glossary/types"
-import { LANGUAGE_ENGLISH_NAMES } from "@read-frog/definitions"
-import { isLLMProviderConfig, isNonAPIProvider, isPureAPIProvider } from "@/types/config/provider"
-import { aiTranslate } from "./api/ai"
+import { isNonAPIProvider, isPureAPIProvider } from "@/types/config/provider"
 import { deeplTranslate } from "./api/deepl"
 import { deeplxTranslate } from "./api/deeplx"
 import { googleTranslate } from "./api/google"
@@ -19,14 +16,14 @@ import { microsoftTranslate } from "./api/microsoft"
 import { prepareTranslationText } from "./text-preparation"
 import { normalizeTranslationOutput } from "./translation-output-normalization"
 
-export async function executeTranslate<TContext>(
+export async function executeTranslate(
   text: string,
   langConfig: Config["language"],
   providerConfig: ProviderConfig,
-  promptResolver: PromptResolver<TContext>,
+  _promptResolver: unknown,
   options?: {
     isBatch?: boolean
-    context?: TContext
+    context?: unknown
     textFormat?: TranslationTextFormat
     // Only Google needs protection: its translateHtml transport collapses
     // "\n" as HTML whitespace. Microsoft preserves newlines in both textTypes
@@ -75,17 +72,8 @@ export async function executeTranslate<TContext>(
         signal: options?.signal,
       })
     }
-  } else if (isLLMProviderConfig(providerConfig)) {
-    const targetLangName = LANGUAGE_ENGLISH_NAMES[langConfig.targetCode]
-    translatedText = await aiTranslate(
-      preparedText,
-      targetLangName,
-      providerConfig,
-      promptResolver,
-      options,
-    )
   } else {
-    throw new Error(`Unknown provider: ${provider}`)
+    throw new Error(`Unsupported provider: ${provider}`)
   }
 
   return normalizeTranslationOutput(providerConfig, translatedText).trim()

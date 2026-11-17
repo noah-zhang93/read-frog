@@ -58,6 +58,9 @@ function MenuRow() {
 }
 
 function renderSpeech(store = createStore()) {
+  const config = structuredClone(DEFAULT_CONFIG)
+  config.selectionToolbar.features.speak.enabled = true
+  store.set(configAtom, config)
   return render(
     <Provider store={store}>
       <TooltipProvider>

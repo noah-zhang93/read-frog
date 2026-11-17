@@ -13,28 +13,16 @@ import { onMessage } from "@/utils/message"
 import { openOptionsPage } from "@/utils/navigation"
 import { SessionCacheGroupRegistry } from "@/utils/session-cache/session-cache-group-registry"
 import { ensureRemoteSiteRulesLoaded } from "@/utils/site-rules/active"
-import { runAiSegmentSubtitles } from "./ai-segmentation"
-import { dispatchBackgroundStreamPort } from "./background-stream"
 import { initializeActionIcons, registerActionIconListeners } from "./browser-action-icon"
 import { ensureInitializedConfig, isFreshInstalledConfig } from "./config"
 import { setUpConfigBackup } from "./config-backup"
 import { initializeContextMenu, registerContextMenuListeners } from "./context-menu"
-import {
-  cleanupAllAiSegmentationCache,
-  cleanupAllSummaryCache,
-  cleanupAllTranslationCache,
-  setUpDatabaseCleanup,
-} from "./db-cleanup"
+import { cleanupAllTranslationCache, setUpDatabaseCleanup } from "./db-cleanup"
 import { setupDiagnosticsHandlers } from "./diagnostics"
 import { setupEdgeTTSMessageHandlers } from "./edge-tts"
-import { setupFeatureUsedEventHandlers } from "./feature-used-event"
-import { setupGlossaryMessageHandlers } from "./glossary"
-import { setupHostedAiStatusHandler } from "./hosted-ai-status"
 import { setupIframeInjection } from "./iframe-injection"
-import { setupLLMGenerateTextMessageHandlers } from "./llm-generate-text"
 import { initMockData } from "./mock-data"
 import { newUserGuide } from "./new-user-guide"
-import { setupNotebasePendingSaveProcessor } from "./notebase-pending-save"
 import { setupPageTranslationHandlers } from "./page-translation"
 import { proxyFetch } from "./proxy-fetch"
 import { setupSelectionToolbarHiddenUntilReload } from "./selection-toolbar-hidden"
@@ -44,7 +32,6 @@ import { setupSubtitlesTranslationHandlers } from "./subtitles-translation"
 import { translationMessage } from "./translation-signal"
 import { setupTTSPlaybackMessageHandlers } from "./tts-playback"
 import { setupUninstallSurvey } from "./uninstall-survey"
-import { setupVideoSummaryHandlers } from "./video-summary"
 
 const log = createLogger("background")
 
@@ -106,30 +93,11 @@ export default defineBackground({
       registerMessageHandler: onMessage,
     })
 
-    onMessage("aiSegmentSubtitles", async (message) => {
-      try {
-        return await runAiSegmentSubtitles(message.data)
-      } catch (error) {
-        log.error("aiSegmentSubtitles failed", { error })
-        throw error
-      }
-    })
-
-    browser.runtime.onConnect.addListener((port) => {
-      dispatchBackgroundStreamPort(port)
-    })
-
     onMessage("clearAllTranslationRelatedCache", async () => {
       await cleanupAllTranslationCache()
-      await cleanupAllSummaryCache()
-    })
-
-    onMessage("clearAiSegmentationCache", async () => {
-      await cleanupAllAiSegmentationCache()
     })
 
     newUserGuide()
-    setupFeatureUsedEventHandlers()
     translationMessage()
     registerActionIconListeners()
 
@@ -140,11 +108,10 @@ export default defineBackground({
     // Initialize action icons asynchronously
     void initializeActionIcons()
 
-    // Synchronous: all translation and summary handlers register in the first turn of
+    // Synchronous: all translation handlers register in the first turn of
     // the SW so wake-triggering messages are never dropped during init.
     setupPageTranslationHandlers()
     setupSubtitlesTranslationHandlers()
-    setupVideoSummaryHandlers()
     void setUpDatabaseCleanup()
     setUpConfigBackup()
     setUpSiteRulesUpdate()
@@ -161,11 +128,7 @@ export default defineBackground({
     })()
 
     proxyFetch()
-    setupHostedAiStatusHandler()
-    setupGlossaryMessageHandlers()
-    setupNotebasePendingSaveProcessor(() => backgroundReady)
     setupEdgeTTSMessageHandlers()
-    setupLLMGenerateTextMessageHandlers()
     setupTTSPlaybackMessageHandlers()
     void initMockData()
 

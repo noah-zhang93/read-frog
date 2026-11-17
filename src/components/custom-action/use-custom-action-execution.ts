@@ -1,10 +1,10 @@
 import type { LanguageTag } from "@read-frog/definitions"
-import type { JSONValue } from "ai"
 import type { RefObject } from "react"
 import type { SelectionToolbarInlineError } from "@/components/ui/selection-popover/inline-error"
 import type { FeatureProviderAnalytics, SurfaceByFeature } from "@/types/analytics"
 import type {
   BackgroundStructuredObjectStreamSnapshot,
+  JSONValue,
   ThinkingSnapshot,
 } from "@/types/background-stream"
 import type { Config } from "@/types/config/config"

@@ -85,7 +85,7 @@ describe("selection toolbar page sections", () => {
       ...selectionToolbar,
       features: {
         ...selectionToolbar.features,
-        speak: { ...selectionToolbar.features.speak, enabled: false },
+        speak: { ...selectionToolbar.features.speak, enabled: true },
       },
     })
     expect(translate).toBeChecked()

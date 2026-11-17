@@ -7,7 +7,6 @@ import { MemoryRouter } from "react-router"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { HoverTranslationSection } from "../hover-translation"
-import { PersonalizedPromptsSection } from "../personalized-prompts"
 import { PreferenceSection } from "../preference"
 import { TranslationStyleSection } from "../translation-style"
 
@@ -118,12 +117,6 @@ describe("translation page sections", () => {
     expect(screen.getByRole("link")).toHaveAttribute("href", "/page-translation/custom-css")
   })
 
-  it("sends the prompts row to the page that holds the prompt list", () => {
-    renderInRouter(<PersonalizedPromptsSection />)
-
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/page-translation/prompts")
-  })
-
   it("toggles hover translation without disturbing the hotkey it listens for", () => {
     const translate = testState.pageTranslation!
     translate.node.enabled = true
@@ -147,7 +140,7 @@ describe("translation page sections", () => {
     fireEvent.click(switches[1]!)
 
     expect(setTranslateMock).toHaveBeenCalledWith({
-      node: { ...translate.node, forceRetranslation: true },
+      node: { ...translate.node, forceRetranslation: false },
     })
   })
 })
